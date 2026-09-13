@@ -17,6 +17,7 @@ export default class extends Controller {
       this.previewTarget.textContent = saved
       this.#markDirty(true)
     }
+    highlight(this.previewTarget)
   }
 
   get defaultCode() { return this.sourceTarget.content.textContent }
@@ -77,6 +78,7 @@ export default class extends Controller {
   reset() {
     if (this.editor) this.editor.setValue(this.defaultCode)
     this.previewTarget.textContent = this.defaultCode
+    highlight(this.previewTarget)
     this.#clearSaved()
     this.#markDirty(false)
     this.#render("idle", "")
@@ -107,4 +109,44 @@ export default class extends Controller {
   #clearSaved() {
     try { window.localStorage.removeItem(this.storageKeyValue) } catch { /* as above */ }
   }
+}
+
+// Colour a static <pre> with the same Ruby tokenizer the editor uses, so the
+// preview and the mounted editor look identical. CodeMirror's runmode addon is
+// not vendored, but the mode and StringStream it is built on are public, and
+// walking them by hand is a dozen lines. Sixty <pre>s tokenise in a few ms;
+// sixty editors would not.
+let rubyMode = null
+
+function highlight(pre) {
+  const CM = window.CodeMirror
+  if (!CM) return
+  rubyMode ??= CM.getMode(CM.defaults, "ruby")
+
+  const code = pre.textContent
+  const state = CM.startState(rubyMode)
+  const frag = document.createDocumentFragment()
+
+  code.split("\n").forEach((line, i) => {
+    if (i) frag.append("\n")
+    if (line === "") { rubyMode.blankLine?.(state); return }
+
+    const stream = new CM.StringStream(line, 2, { lookAhead: () => null, baseToken: () => null })
+    while (!stream.eol()) {
+      const style = rubyMode.token(stream, state)
+      const text = stream.current()
+      stream.start = stream.pos
+      if (!text) break
+      if (style) {
+        const span = document.createElement("span")
+        span.className = style.split(" ").map(s => `cm-${s}`).join(" ")
+        span.textContent = text
+        frag.append(span)
+      } else {
+        frag.append(text)
+      }
+    }
+  })
+
+  pre.replaceChildren(frag)
 }

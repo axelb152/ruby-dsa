@@ -3,20 +3,20 @@
          data-snippet-expected-value="<%= snippet.expected %>"
          data-search-target="snippet"
          data-title="<%= snippet.title.downcase %>"
-         class="mb-3 rounded bg-slate-50 p-3 last:mb-0 dark:bg-slate-900/60">
+         class="py-4 first:pt-0 last:pb-0">
 
-  <div class="mb-1 flex flex-wrap items-baseline gap-1.5">
-    <h3 class="text-xs font-medium"><%= snippet.title %></h3>
+  <div class="mb-1 flex flex-wrap items-baseline gap-2">
+    <h3 class="text-[13px] font-semibold tracking-tight"><%= snippet.title %></h3>
     <% { "time" => snippet.time, "space" => snippet.space }.each do |label, value| %>
       <% next unless value %>
-      <span class="rounded bg-sky-100 px-1.5 font-mono text-[10px] text-sky-900 dark:bg-sky-950 dark:text-sky-200">
-        <%= label %> <%= value %>
+      <span class="rounded bg-paper-2 px-1.5 py-px font-mono text-[10.5px] text-ink-2 dark:bg-night-3 dark:text-mist-2">
+        <span class="text-ink-3 dark:text-mist-3"><%= label %></span> <%= value %>
       </span>
     <% end %>
   </div>
 
   <% if snippet.notes %>
-    <p class="mb-2 max-w-prose text-[11px] leading-relaxed text-slate-500 dark:text-slate-400"><%= inline_code(snippet.notes) %></p>
+    <p class="mb-2.5 max-w-prose text-[12px] leading-relaxed text-ink-2 dark:text-mist-2"><%= inline_code(snippet.notes) %></p>
   <% end %>
 
   <%# The pristine source. Reset reads from here, so it works before CodeMirror mounts
@@ -25,35 +25,36 @@
       raw text and would hand back a literal &quot;. %>
   <template data-snippet-target="source"><%= snippet.code %></template>
 
-  <div class="overflow-hidden rounded border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-950">
+  <div class="overflow-hidden rounded-md border border-line bg-white shadow-[0_1px_2px_rgb(0_0_0/0.03)] dark:border-night-line dark:bg-night dark:shadow-none">
     <pre data-snippet-target="preview" data-action="click->snippet#mount"
          tabindex="0" role="button" aria-label="Edit this example"
-         class="cursor-text overflow-x-auto p-2.5 font-mono text-[12.5px] leading-[1.7] focus:outline-none"><%= snippet.code %></pre>
+         class="cursor-text overflow-x-auto px-3 py-2.5 font-mono text-[12.5px] leading-[1.7] focus:outline-none"><%= snippet.code %></pre>
     <div data-snippet-target="host" hidden></div>
 
-    <div class="flex items-center gap-1.5 border-t border-slate-200 bg-slate-50 px-2 py-1.5 dark:border-slate-700 dark:bg-slate-900">
+    <div class="flex items-center gap-1.5 border-t border-line-2 bg-paper px-2 py-1.5 dark:border-night-line dark:bg-night-2">
       <button type="button" data-action="snippet#run"
-              class="rounded border border-slate-400 px-2.5 py-0.5 text-[11px] hover:bg-white dark:border-slate-500 dark:hover:bg-slate-800">
+              class="inline-flex items-center gap-1.5 rounded bg-ruby px-2.5 py-0.5 text-[11px] font-medium text-white transition-colors hover:bg-ruby/90 dark:bg-ruby-bright dark:text-night dark:hover:bg-ruby-bright/90">
+        <svg class="size-2.5" viewBox="0 0 10 10" fill="currentColor" aria-hidden="true"><path d="M2 1.5v7l6-3.5z"/></svg>
         run
       </button>
       <button type="button" data-action="snippet#reset"
-              class="rounded border border-slate-200 px-2.5 py-0.5 text-[11px] text-slate-500 hover:bg-white dark:border-slate-700 dark:hover:bg-slate-800">
+              class="rounded border border-line px-2.5 py-0.5 text-[11px] text-ink-2 transition-colors hover:border-ink-3 hover:text-ink dark:border-night-line dark:text-mist-2 dark:hover:border-mist-3 dark:hover:text-mist">
         reset
       </button>
       <span class="flex-1"></span>
-      <span data-snippet-target="dirty" hidden class="font-mono text-[10px] text-slate-400 dark:text-slate-500">edited · saved locally</span>
+      <span data-snippet-target="dirty" hidden class="font-mono text-[10px] text-ruby dark:text-ruby-bright">edited · saved locally</span>
     </div>
   </div>
 
   <div class="mt-2 grid gap-2 sm:grid-cols-2">
-    <div class="rounded border border-dashed border-slate-200 px-2 py-1.5 dark:border-slate-700">
-      <div class="mb-0.5 text-[10px] text-slate-400 dark:text-slate-500">expected output</div>
-      <pre class="overflow-x-auto font-mono text-[11px]"><%= snippet.expected %></pre>
+    <div class="rounded-md border border-dashed border-line px-2.5 py-1.5 dark:border-night-line">
+      <div class="mb-0.5 text-[10px] uppercase tracking-[0.08em] text-ink-3 dark:text-mist-3">expected output</div>
+      <pre class="overflow-x-auto font-mono text-[11px] leading-relaxed text-ink-2 dark:text-mist-2"><%= snippet.expected %></pre>
     </div>
     <div data-snippet-target="output" data-state="idle" hidden
-         class="rounded border border-slate-200 px-2 py-1.5 dark:border-slate-700">
-      <div data-label class="mb-0.5 text-[10px] text-slate-400 dark:text-slate-500">output</div>
-      <pre data-body class="overflow-x-auto font-mono text-[11px]"></pre>
+         class="rounded-md border border-line px-2.5 py-1.5 dark:border-night-line">
+      <div data-label class="mb-0.5 text-[10px] uppercase tracking-[0.08em] text-ink-3 dark:text-mist-3">output</div>
+      <pre data-body class="overflow-x-auto font-mono text-[11px] leading-relaxed"></pre>
     </div>
   </div>
 </article>

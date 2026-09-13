@@ -1,30 +1,33 @@
 <div data-controller="search" class="mx-auto max-w-6xl px-4">
-  <header class="sticky top-0 z-20 -mx-4 mb-6 flex flex-wrap items-center gap-3 border-b border-slate-200 bg-white/90 px-4 py-2.5 backdrop-blur dark:border-slate-800 dark:bg-slate-950/90">
-    <a href="#top" class="text-sm font-medium">ruby-dsa</a>
-    <span class="font-mono text-[11px] text-slate-400 dark:text-slate-500">ruby 4.0</span>
+  <header class="sticky top-0 z-20 -mx-4 mb-8 flex flex-wrap items-center gap-3 border-b border-line bg-paper/85 px-4 py-2.5 backdrop-blur dark:border-night-line dark:bg-night/85">
+    <a href="#top" class="flex items-center gap-2 text-sm font-semibold tracking-tight">
+      <span aria-hidden="true" class="inline-block size-2 rotate-45 rounded-[2px] bg-ruby dark:bg-ruby-bright"></span>
+      ruby-dsa
+    </a>
+    <span class="font-mono text-[11px] text-ink-3 dark:text-mist-3">ruby 4.0</span>
     <span class="flex-1"></span>
 
     <input type="search" placeholder="search snippets"
            data-search-target="input" data-action="input->search#filter"
-           class="w-52 rounded border border-slate-200 bg-transparent px-2.5 py-1 text-xs placeholder:text-slate-400 focus:border-slate-400 focus:outline-none dark:border-slate-700">
+           class="min-w-0 flex-1 rounded-md border border-line sm:w-52 sm:flex-initial bg-white/60 px-2.5 py-1 text-xs placeholder:text-ink-3 focus:border-ruby focus:bg-white focus:outline-none dark:border-night-line dark:bg-night-2 dark:placeholder:text-mist-3 dark:focus:border-ruby-bright">
 
     <button type="button" data-action="search#toggleAll"
-            class="rounded border border-slate-200 px-2 py-1 text-xs text-slate-500 hover:bg-slate-50 dark:border-slate-700 dark:hover:bg-slate-900">
+            class="rounded-md border border-line px-2.5 py-1 text-xs text-ink-2 transition-colors hover:border-ink-3 hover:text-ink dark:border-night-line dark:text-mist-2 dark:hover:border-mist-3 dark:hover:text-mist">
       expand all
     </button>
 
     <button type="button" data-controller="theme" data-action="theme#toggle" aria-label="Toggle dark mode"
-            class="rounded border border-slate-200 px-2 py-1 text-xs text-slate-500 hover:bg-slate-50 dark:border-slate-700 dark:hover:bg-slate-900">
+            class="rounded-md border border-line px-2.5 py-1 text-xs text-ink-2 transition-colors hover:border-ink-3 hover:text-ink dark:border-night-line dark:text-mist-2 dark:hover:border-mist-3 dark:hover:text-mist">
       theme
     </button>
   </header>
 
-  <div class="flex gap-8">
-    <aside class="sticky top-14 hidden h-[calc(100vh-4rem)] w-40 shrink-0 overflow-y-auto pb-8 text-[11px] leading-[2] lg:block">
+  <div class="flex gap-10">
+    <aside class="sticky top-14 hidden h-[calc(100vh-4rem)] w-48 shrink-0 overflow-y-auto pb-8 text-[11.5px] leading-[2] lg:block">
       <% catalog.parts.each do |part, categories| %>
-        <div class="mt-3 mb-0.5 text-[10px] tracking-wide text-slate-400 dark:text-slate-500"><%= part_title(part).downcase %></div>
+        <div class="mt-4 mb-1 text-[10px] font-medium uppercase tracking-[0.12em] text-ink-3 dark:text-mist-3"><%= part_title(part) %></div>
         <% categories.each do |category| %>
-          <a href="#<%= category.slug %>" class="block truncate text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100">
+          <a href="#<%= category.slug %>" class="-ml-2 block truncate rounded-md px-2 text-ink-2 transition-colors hover:bg-paper-2 hover:text-ink dark:text-mist-2 dark:hover:bg-night-2 dark:hover:text-mist">
             <%= category.title.downcase %>
           </a>
         <% end %>
@@ -32,8 +35,8 @@
     </aside>
 
     <main id="top" class="min-w-0 flex-1 pb-24">
-      <h1 class="text-lg font-medium">Data structures &amp; algorithms in Ruby</h1>
-      <p class="mt-1 mb-5 max-w-prose text-xs text-slate-500 dark:text-slate-400">
+      <h1 class="text-2xl font-semibold tracking-tight text-balance">Data structures &amp; algorithms in Ruby</h1>
+      <p class="mt-2 mb-6 max-w-prose text-[13px] leading-relaxed text-ink-2 dark:text-mist-2">
         Every example runs real CRuby in your browser. Edit one and hit run — it is
         yours until you reset it. Ruby downloads on your first run, once, for the page.
       </p>
@@ -42,7 +45,10 @@
 
       <% catalog.parts.each do |part, categories| %>
         <h2 data-search-target="partHeading" data-part="<%= part %>"
-            class="mt-8 mb-2 text-[10px] tracking-wide text-slate-400 dark:text-slate-500"><%= part_title(part).upcase %></h2>
+            class="mt-12 mb-3 flex items-center gap-3 text-[10.5px] font-medium uppercase tracking-[0.12em] text-ink-3 dark:text-mist-3">
+          <%= part_title(part) %>
+          <span class="h-px flex-1 bg-line-2 dark:bg-night-line"></span>
+        </h2>
         <% categories.each do |category| %><%= render "category", category: category %><% end %>
       <% end %>
     </main>
