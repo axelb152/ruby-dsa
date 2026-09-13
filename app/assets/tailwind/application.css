@@ -1,0 +1,50 @@
+@import "tailwindcss";
+
+/* Dark mode follows the system by default, but a manual toggle must be able to
+   win in both directions — so the variant keys off a class the toggle sets. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --font-mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+/* CodeMirror ships a light theme only. Rather than pull a second stylesheet per
+   mode, restyle its tokens against our own variables so one rule set serves both. */
+.CodeMirror {
+  height: auto;
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  line-height: 1.7;
+  background: transparent;
+  color: var(--color-slate-700);
+}
+.dark .CodeMirror { color: var(--color-slate-200); }
+.CodeMirror-gutters { background: transparent; border-right: 1px solid var(--color-slate-200); }
+.dark .CodeMirror-gutters { border-right-color: var(--color-slate-700); }
+.CodeMirror-linenumber { color: var(--color-slate-400); font-size: 11px; }
+.dark .CodeMirror-linenumber { color: var(--color-slate-600); }
+.CodeMirror-cursor { border-left-color: currentColor; }
+.CodeMirror-selected { background: var(--color-sky-100); }
+.dark .CodeMirror-selected { background: var(--color-slate-700); }
+
+.cm-keyword  { color: var(--color-violet-700); }
+.cm-string   { color: var(--color-emerald-700); }
+.cm-number   { color: var(--color-amber-700); }
+.cm-comment  { color: var(--color-slate-400); font-style: italic; }
+.cm-def, .cm-variable-2, .cm-property { color: var(--color-sky-700); }
+.cm-operator { color: var(--color-slate-500); }
+.dark .cm-keyword  { color: var(--color-violet-300); }
+.dark .cm-string   { color: var(--color-emerald-300); }
+.dark .cm-number   { color: var(--color-amber-300); }
+.dark .cm-comment  { color: var(--color-slate-500); }
+.dark .cm-def, .dark .cm-variable-2, .dark .cm-property { color: var(--color-sky-300); }
+.dark .cm-operator { color: var(--color-slate-400); }
+
+/* Output pane states, driven by data-state from the snippet controller. */
+[data-state="running"] { border-color: var(--color-slate-300); }
+[data-state="good"] { border-color: var(--color-emerald-400); background: var(--color-emerald-50); }
+[data-state="warn"] { border-color: var(--color-amber-400); background: var(--color-amber-50); }
+[data-state="bad"]  { border-color: var(--color-red-400);     background: var(--color-red-50); }
+.dark [data-state="good"] { background: color-mix(in oklab, var(--color-emerald-950) 70%, transparent); }
+.dark [data-state="warn"] { background: color-mix(in oklab, var(--color-amber-950) 70%, transparent); }
+.dark [data-state="bad"]  { background: color-mix(in oklab, var(--color-red-950) 70%, transparent); }

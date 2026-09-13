@@ -1,0 +1,23 @@
+<%# Ruby's own complexities — the thing people guess wrong about most often, and
+    the reason a Ruby answer can differ from the Python one an interviewer expects. %>
+<details class="rounded border border-dashed border-slate-300 px-3 py-2 dark:border-slate-700">
+  <summary class="cursor-pointer text-xs font-medium">Big-O of Ruby's own Array &amp; Hash</summary>
+  <div class="mt-2 grid grid-cols-2 gap-x-6 gap-y-1 font-mono text-[11px] text-slate-500 sm:grid-cols-4 dark:text-slate-400">
+    <% {
+         "push / pop"     => "O(1)",
+         "shift / unshift"=> "O(1)",
+         "a[i]"           => "O(1)",
+         "insert(i, x)"   => "O(n)",
+         "include?"       => "O(n)",
+         "sort"           => "O(n log n)",
+         "h[k] / h[k]="   => "O(1)",
+         "h.key?"         => "O(1)"
+       }.each do |op, cost| %>
+      <span><%= op %> <span class="text-slate-400 dark:text-slate-500"><%= cost %></span></span>
+    <% end %>
+  </div>
+  <p class="mt-2 text-[11px] text-slate-500 dark:text-slate-400">
+    <code>shift</code> is O(1) because CRuby moves the array's start pointer rather than
+    re-indexing — worth saying out loud, since the same operation is O(n) on a Python list.
+  </p>
+</details>

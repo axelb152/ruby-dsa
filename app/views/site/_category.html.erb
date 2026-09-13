@@ -1,0 +1,19 @@
+<details id="<%= category.slug %>" data-search-target="category"
+         class="mb-1.5 scroll-mt-14 rounded border <%= category.todo? ? "border-dashed border-slate-200 dark:border-slate-800" : "border-slate-200 dark:border-slate-800" %>">
+  <summary class="flex cursor-pointer items-center gap-2 px-3 py-2">
+    <span class="text-xs <%= category.todo? ? "text-slate-400 dark:text-slate-500" : "font-medium" %>"><%= category.title %></span>
+    <span class="flex-1"></span>
+    <% if category.todo? %>
+      <span class="rounded border border-slate-200 px-1.5 text-[10px] text-slate-400 dark:border-slate-700 dark:text-slate-500">todo</span>
+    <% else %>
+      <span class="text-[11px] text-slate-400 dark:text-slate-500"><%= category.snippets.size %></span>
+    <% end %>
+  </summary>
+
+  <div class="border-t border-slate-100 px-3 py-3 dark:border-slate-800">
+    <% if category.blurb %>
+      <p class="mb-3 max-w-prose text-xs text-slate-500 dark:text-slate-400"><%= category.blurb %></p>
+    <% end %>
+    <% category.snippets.each do |snippet| %><%= render "snippet", snippet: snippet %><% end %>
+  </div>
+</details>

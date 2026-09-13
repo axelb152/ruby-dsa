@@ -1,0 +1,86 @@
+slug: two-pointers
+part: patterns
+title: Two pointers
+blurb: |
+  Two indices walk the same array, and the trick is always the same: prove that
+  moving one of them can never discard the answer. Usually they start at opposite
+  ends and close inward, which turns an O(n^2) pair search into a single O(n) pass
+  with no extra memory.
+snippets:
+  - slug: valid-palindrome
+    title: Valid palindrome
+    time: O(n)
+    space: O(1)
+    notes: |
+      Walk inward from both ends. The normalising gsub is O(n) and allocates a new
+      string, so the O(1) claim is about the comparison loop, not the whole method —
+      an interviewer may well ask you that.
+    code: |
+      def palindrome?(s)
+        t = s.downcase.gsub(/[^a-z0-9]/, "")
+        i, j = 0, t.size - 1
+        while i < j
+          return false unless t[i] == t[j]
+          i += 1
+          j -= 1
+        end
+        true
+      end
+
+      p palindrome?("A man, a plan, a canal: Panama")
+      p palindrome?("race a car")
+    expected: |
+      true
+      false
+
+  - slug: two-sum-sorted
+    title: Two sum on a sorted array
+    time: O(n)
+    space: O(1)
+    notes: |
+      Sortedness is what earns the pointers. If the sum is too small only the left
+      pointer can help, and if it is too big only the right one can — so each step
+      discards a row or column of the pair space without ever examining it.
+    code: |
+      def two_sum_sorted(nums, target)
+        i, j = 0, nums.size - 1
+        while i < j
+          sum = nums[i] + nums[j]
+          return [i + 1, j + 1] if sum == target
+          sum < target ? i += 1 : j -= 1
+        end
+        []
+      end
+
+      p two_sum_sorted([2, 7, 11, 15], 9)
+      p two_sum_sorted([2, 3, 4], 6)
+      p two_sum_sorted([1, 2], 99)
+    expected: |
+      [1, 2]
+      [1, 3]
+      []
+
+  - slug: container-with-most-water
+    title: Container with most water
+    time: O(n)
+    space: O(1)
+    notes: |
+      Area is width times the *shorter* wall, so moving the taller wall inward can
+      only ever lose width without gaining height. Moving the shorter one is the only
+      move that can improve the answer — which is why discarding it is safe.
+    code: |
+      def max_area(heights)
+        best = 0
+        i, j = 0, heights.size - 1
+        while i < j
+          best = [best, (j - i) * [heights[i], heights[j]].min].max
+          heights[i] < heights[j] ? i += 1 : j -= 1
+        end
+        best
+      end
+
+      p max_area([1, 8, 6, 2, 5, 4, 8, 3, 7])
+      p max_area([1, 1])
+    expected: |
+      49
+      1

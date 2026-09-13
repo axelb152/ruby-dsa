@@ -1,0 +1,13 @@
+{
+  "name": "ruby-dsa",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node test/snippets.mjs"
+  },
+  "devDependencies": {
+    "@ruby/4.0-wasm-wasi": "2.10.1",
+    "@ruby/wasm-wasi": "2.10.1",
+    "js-yaml": "^4.1.0"
+  }
+}

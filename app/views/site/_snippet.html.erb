@@ -1,0 +1,59 @@
+<article data-controller="snippet"
+         data-snippet-storage-key-value="<%= snippet.storage_key %>"
+         data-snippet-expected-value="<%= snippet.expected %>"
+         data-search-target="snippet"
+         data-title="<%= snippet.title.downcase %>"
+         class="mb-3 rounded bg-slate-50 p-3 last:mb-0 dark:bg-slate-900/60">
+
+  <div class="mb-1 flex flex-wrap items-baseline gap-1.5">
+    <h3 class="text-xs font-medium"><%= snippet.title %></h3>
+    <% { "time" => snippet.time, "space" => snippet.space }.each do |label, value| %>
+      <% next unless value %>
+      <span class="rounded bg-sky-100 px-1.5 font-mono text-[10px] text-sky-900 dark:bg-sky-950 dark:text-sky-200">
+        <%= label %> <%= value %>
+      </span>
+    <% end %>
+  </div>
+
+  <% if snippet.notes %>
+    <p class="mb-2 max-w-prose text-[11px] leading-relaxed text-slate-500 dark:text-slate-400"><%= snippet.notes %></p>
+  <% end %>
+
+  <%# The pristine source. Reset reads from here, so it works before CodeMirror mounts
+      and survives any state the editor has got itself into. A <template> is parsed as
+      HTML, so the escaping Rails applies here is undone on read; a <script> body is
+      raw text and would hand back a literal &quot;. %>
+  <template data-snippet-target="source"><%= snippet.code %></template>
+
+  <div class="overflow-hidden rounded border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-950">
+    <pre data-snippet-target="preview" data-action="click->snippet#mount"
+         tabindex="0" role="button" aria-label="Edit this example"
+         class="cursor-text overflow-x-auto p-2.5 font-mono text-[12.5px] leading-[1.7] focus:outline-none"><%= snippet.code %></pre>
+    <div data-snippet-target="host" hidden></div>
+
+    <div class="flex items-center gap-1.5 border-t border-slate-200 bg-slate-50 px-2 py-1.5 dark:border-slate-700 dark:bg-slate-900">
+      <button type="button" data-action="snippet#run"
+              class="rounded border border-slate-400 px-2.5 py-0.5 text-[11px] hover:bg-white dark:border-slate-500 dark:hover:bg-slate-800">
+        run
+      </button>
+      <button type="button" data-action="snippet#reset"
+              class="rounded border border-slate-200 px-2.5 py-0.5 text-[11px] text-slate-500 hover:bg-white dark:border-slate-700 dark:hover:bg-slate-800">
+        reset
+      </button>
+      <span class="flex-1"></span>
+      <span data-snippet-target="dirty" hidden class="font-mono text-[10px] text-slate-400 dark:text-slate-500">edited · saved locally</span>
+    </div>
+  </div>
+
+  <div class="mt-2 grid gap-2 sm:grid-cols-2">
+    <div class="rounded border border-dashed border-slate-200 px-2 py-1.5 dark:border-slate-700">
+      <div class="mb-0.5 text-[10px] text-slate-400 dark:text-slate-500">expected output</div>
+      <pre class="overflow-x-auto font-mono text-[11px]"><%= snippet.expected %></pre>
+    </div>
+    <div data-snippet-target="output" data-state="idle" hidden
+         class="rounded border border-slate-200 px-2 py-1.5 dark:border-slate-700">
+      <div data-label class="mb-0.5 text-[10px] text-slate-400 dark:text-slate-500">output</div>
+      <pre data-body class="overflow-x-auto font-mono text-[11px]"></pre>
+    </div>
+  </div>
+</article>

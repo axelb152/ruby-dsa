@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+  <head>
+    <title><%= content_for(:title) || "ruby-dsa — data structures & algorithms in Ruby" %></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="description" content="Editable, runnable Ruby implementations of the data structures and algorithms asked in coding interviews.">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+    <meta name="ruby-worker-url" content="<%= asset_path("ruby_worker.js") %>">
+
+    <%# Set the theme before first paint so a dark-mode reader never sees a white flash. %>
+    <script>
+      (() => {
+        try {
+          const saved = localStorage.getItem("dsa:theme")
+          const dark = saved ? saved === "dark" : matchMedia("(prefers-color-scheme: dark)").matches
+          if (dark) document.documentElement.classList.add("dark")
+        } catch { /* site data blocked — fall back to the light default */ }
+      })()
+    </script>
+
+    <link rel="icon" href="/icon.svg" type="image/svg+xml">
+    <%= stylesheet_link_tag "codemirror", "data-turbo-track": "reload" %>
+    <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
+    <%= javascript_include_tag "codemirror", "codemirror-ruby", defer: true %>
+    <%= javascript_importmap_tags %>
+  </head>
+
+  <body class="bg-white text-slate-800 antialiased dark:bg-slate-950 dark:text-slate-200">
+    <%= yield %>
+  </body>
+</html>

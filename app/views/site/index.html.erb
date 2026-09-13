@@ -1,0 +1,49 @@
+<div data-controller="search" class="mx-auto max-w-6xl px-4">
+  <header class="sticky top-0 z-20 -mx-4 mb-6 flex flex-wrap items-center gap-3 border-b border-slate-200 bg-white/90 px-4 py-2.5 backdrop-blur dark:border-slate-800 dark:bg-slate-950/90">
+    <a href="#top" class="text-sm font-medium">ruby-dsa</a>
+    <span class="font-mono text-[11px] text-slate-400 dark:text-slate-500">ruby 4.0</span>
+    <span class="flex-1"></span>
+
+    <input type="search" placeholder="search snippets"
+           data-search-target="input" data-action="input->search#filter"
+           class="w-52 rounded border border-slate-200 bg-transparent px-2.5 py-1 text-xs placeholder:text-slate-400 focus:border-slate-400 focus:outline-none dark:border-slate-700">
+
+    <button type="button" data-action="search#toggleAll"
+            class="rounded border border-slate-200 px-2 py-1 text-xs text-slate-500 hover:bg-slate-50 dark:border-slate-700 dark:hover:bg-slate-900">
+      expand all
+    </button>
+
+    <button type="button" data-controller="theme" data-action="theme#toggle" aria-label="Toggle dark mode"
+            class="rounded border border-slate-200 px-2 py-1 text-xs text-slate-500 hover:bg-slate-50 dark:border-slate-700 dark:hover:bg-slate-900">
+      theme
+    </button>
+  </header>
+
+  <div class="flex gap-8">
+    <aside class="sticky top-14 hidden h-[calc(100vh-4rem)] w-40 shrink-0 overflow-y-auto pb-8 text-[11px] leading-[2] lg:block">
+      <% @catalog.parts.each do |part, categories| %>
+        <div class="mt-3 mb-0.5 text-[10px] tracking-wide text-slate-400 dark:text-slate-500"><%= part_title(part).downcase %></div>
+        <% categories.each do |category| %>
+          <a href="#<%= category.slug %>" class="block truncate text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100">
+            <%= category.title.downcase %>
+          </a>
+        <% end %>
+      <% end %>
+    </aside>
+
+    <main id="top" class="min-w-0 flex-1 pb-24">
+      <h1 class="text-lg font-medium">Data structures &amp; algorithms in Ruby</h1>
+      <p class="mt-1 mb-5 max-w-prose text-xs text-slate-500 dark:text-slate-400">
+        Every example runs real CRuby in your browser. Edit one and hit run — it is
+        yours until you reset it. Ruby downloads on your first run, once, for the page.
+      </p>
+
+      <%= render "big_o" %>
+
+      <% @catalog.parts.each do |part, categories| %>
+        <h2 class="mt-8 mb-2 text-[10px] tracking-wide text-slate-400 dark:text-slate-500"><%= part_title(part).upcase %></h2>
+        <% categories.each do |category| %><%= render "category", category: category %><% end %>
+      <% end %>
+    </main>
+  </div>
+</div>
