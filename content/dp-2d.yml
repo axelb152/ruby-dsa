@@ -1,0 +1,54 @@
+slug: dp-2d
+part: patterns
+position: 14
+title: Dynamic programming — 2D
+blurb: |
+  Two sequences, so the state is a pair of positions and the table is a grid. Fill
+  it so every cell's dependencies are already computed, and read the answer out of
+  the far corner.
+snippets:
+  - slug: lcs-and-edit-distance
+    title: Longest common subsequence, and edit distance
+    time: O(m · n)
+    space: O(m · n)
+    notes: |
+      Same grid, different recurrence. Matching characters move diagonally; a
+      mismatch takes the best neighbour. Edit distance adds one to that best
+      neighbour because a mismatch costs an operation rather than merely being
+      skipped.
+    code: |
+      def lcs(a, b)
+        table = Array.new(a.size + 1) { Array.new(b.size + 1, 0) }
+
+        a.each_char.with_index(1) do |ca, i|
+          b.each_char.with_index(1) do |cb, j|
+            table[i][j] = ca == cb ? table[i - 1][j - 1] + 1
+                                   : [table[i - 1][j], table[i][j - 1]].max
+          end
+        end
+
+        table[a.size][b.size]
+      end
+
+      def edit_distance(a, b)
+        table = Array.new(a.size + 1) { |i| Array.new(b.size + 1) { |j| i.zero? ? j : (j.zero? ? i : 0) } }
+
+        a.each_char.with_index(1) do |ca, i|
+          b.each_char.with_index(1) do |cb, j|
+            table[i][j] = ca == cb ? table[i - 1][j - 1]
+                                   : 1 + [table[i - 1][j], table[i][j - 1], table[i - 1][j - 1]].min
+          end
+        end
+
+        table[a.size][b.size]
+      end
+
+      p lcs("abcde", "ace")
+      p lcs("abc", "xyz")
+      p edit_distance("horse", "ros")
+      p edit_distance("", "abc")
+    expected: |
+      3
+      0
+      3
+      3

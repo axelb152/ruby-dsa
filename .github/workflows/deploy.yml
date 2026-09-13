@@ -1,0 +1,65 @@
+name: Build and deploy
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+# A custom workflow also lifts the 10-builds-per-hour limit Pages applies to its
+# own build system.
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Both read the versions from the committed .ruby-version / .tool-versions,
+      # so CI can never drift from what runs locally.
+      - uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .tool-versions
+          cache: npm
+
+      - run: npm ci
+
+      # Runs every snippet inside the same wasm binary the browser downloads and
+      # asserts its stdout. A failure here stops the deploy, so the live site
+      # keeps the last version whose examples were known-good.
+      - name: Verify snippets
+        run: npm test
+
+      - name: Build static site
+        run: bundle exec rake site:build
+        env:
+          RAILS_ENV: production
+          SECRET_KEY_BASE_DUMMY: 1
+
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    # Pull requests get the tests and the build, but never touch the live site.
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

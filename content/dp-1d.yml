@@ -1,0 +1,39 @@
+slug: dp-1d
+part: patterns
+position: 13
+title: Dynamic programming — 1D
+blurb: |
+  A recurrence plus a cache. Write the naive recursion first, notice it recomputes
+  the same arguments, then either memoise it or flip it into a loop. If only the
+  last couple of states matter, the array collapses to two variables.
+snippets:
+  - slug: stairs-and-robber
+    title: Climbing stairs and house robber
+    time: O(n)
+    space: O(1)
+    notes: |
+      Both are Fibonacci wearing a hat. Climbing stairs sums the two previous
+      states; house robber takes the better of skipping or taking. Keeping two
+      variables instead of an array is the O(1)-space version interviewers look for.
+    code: |
+      def climb_stairs(n)
+        a, b = 1, 1
+        n.times { a, b = b, a + b }
+        a
+      end
+
+      def rob(houses)
+        skip = take = 0
+        houses.each { |money| skip, take = [skip, take].max, skip + money }
+        [skip, take].max
+      end
+
+      p (0..6).map { |n| climb_stairs(n) }
+      p rob([1, 2, 3, 1])
+      p rob([2, 7, 9, 3, 1])
+      p rob([])
+    expected: |
+      [1, 1, 2, 3, 5, 8, 13]
+      4
+      12
+      0

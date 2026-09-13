@@ -1,0 +1,87 @@
+slug: advanced-graphs
+part: patterns
+position: 12
+title: Advanced graphs
+blurb: |
+  Ordering under constraints, and shortest paths with weights. Topological sort is
+  the answer to every "can this be scheduled?" question; Dijkstra is BFS where the
+  queue is sorted by distance instead of by arrival.
+snippets:
+  - slug: topological-sort
+    title: Topological sort (Kahn's algorithm)
+    time: O(V + E)
+    space: O(V + E)
+    notes: |
+      Repeatedly take a node with no unmet prerequisites. If the output is shorter
+      than the input, the leftovers are all in a cycle — which is how the same
+      algorithm answers "is there a circular dependency?" for free.
+    code: |
+      def topological_sort(nodes, edges)
+        incoming = nodes.to_h { |n| [n, 0] }
+        outgoing = Hash.new { |h, k| h[k] = [] }
+
+        edges.each do |from, to|
+          outgoing[from] << to
+          incoming[to] += 1
+        end
+
+        ready = nodes.select { |n| incoming[n].zero? }
+        order = []
+
+        until ready.empty?
+          node = ready.shift
+          order << node
+          outgoing[node].each do |nxt|
+            incoming[nxt] -= 1
+            ready << nxt if incoming[nxt].zero?
+          end
+        end
+
+        order.size == nodes.size ? order : nil
+      end
+
+      p topological_sort(%w[a b c d], [%w[a b], %w[a c], %w[b d], %w[c d]])
+      p topological_sort(%w[a b], [%w[a b], %w[b a]])
+    expected: |
+      ["a", "b", "c", "d"]
+      nil
+
+  - slug: dijkstra
+    title: Dijkstra's shortest paths
+    time: O(V^2) here, O((V + E) log V) with a heap
+    space: O(V)
+    notes: |
+      Scanning for the nearest unvisited node is O(V), which makes this O(V^2). A
+      priority queue replaces that scan with O(log V) — say so, since Ruby has no
+      built-in heap and an interviewer will want to know you noticed.
+    code: |
+      def dijkstra(graph, source)
+        distance = graph.keys.to_h { |n| [n, Float::INFINITY] }
+        distance[source] = 0
+        unvisited = graph.keys.dup
+
+        until unvisited.empty?
+          node = unvisited.min_by { |n| distance[n] }
+          break if distance[node] == Float::INFINITY
+          unvisited.delete(node)
+
+          graph[node].each do |neighbour, weight|
+            candidate = distance[node] + weight
+            distance[neighbour] = candidate if candidate < distance[neighbour]
+          end
+        end
+
+        distance
+      end
+
+      graph = {
+        "a" => { "b" => 1, "c" => 4 },
+        "b" => { "c" => 2, "d" => 6 },
+        "c" => { "d" => 3 },
+        "d" => {},
+        "x" => {}
+      }
+
+      p dijkstra(graph, "a")
+    expected: |
+      {"a" => 0, "b" => 1, "c" => 3, "d" => 6, "x" => Infinity}

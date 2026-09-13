@@ -1,0 +1,71 @@
+slug: stack
+part: patterns
+position: 4
+title: Stack
+blurb: |
+  Whenever the answer depends on the most recent unresolved thing — a bracket, a
+  smaller value, a pending operator — that is a stack. In Ruby an Array is one
+  already: `push` and `pop` are both O(1).
+snippets:
+  - slug: valid-parentheses
+    title: Valid parentheses
+    time: O(n)
+    space: O(n)
+    notes: |
+      Push the *expected closer* rather than the opener, so the check is a single
+      equality instead of a second lookup table at pop time.
+    code: |
+      def valid_parentheses?(s)
+        closers = { "(" => ")", "[" => "]", "{" => "}" }
+        stack = []
+
+        s.each_char do |c|
+          if closers.key?(c)
+            stack.push(closers[c])
+          elsif stack.pop != c
+            return false
+          end
+        end
+
+        stack.empty?
+      end
+
+      p valid_parentheses?("()[]{}")
+      p valid_parentheses?("(]")
+      p valid_parentheses?("([)]")
+      p valid_parentheses?("(")
+    expected: |
+      true
+      false
+      false
+      false
+
+  - slug: daily-temperatures
+    title: Daily temperatures (monotonic stack)
+    time: O(n)
+    space: O(n)
+    notes: |
+      The stack holds indices whose answer is still unknown, kept in decreasing
+      temperature order. Each index is pushed and popped at most once, so the
+      nested while loop is still linear overall.
+    code: |
+      def daily_temperatures(temps)
+        answer = Array.new(temps.size, 0)
+        pending = []
+
+        temps.each_with_index do |t, i|
+          while pending.any? && temps[pending.last] < t
+            j = pending.pop
+            answer[j] = i - j
+          end
+          pending.push(i)
+        end
+
+        answer
+      end
+
+      p daily_temperatures([73, 74, 75, 71, 69, 72, 76, 73])
+      p daily_temperatures([30, 40, 50, 60])
+    expected: |
+      [1, 1, 4, 2, 1, 1, 0, 0]
+      [1, 1, 1, 0]

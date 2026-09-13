@@ -1,0 +1,74 @@
+slug: singly-linked-list
+part: structures
+position: 1
+title: Singly linked list
+blurb: |
+  O(1) insert at the head, O(n) to reach anything else. Rarely the right data
+  structure in Ruby — Array already gives you O(1) at both ends — but a standing
+  interview request, because it is pure pointer discipline.
+snippets:
+  - slug: singly-linked-list
+    title: Singly linked list
+    time: unshift O(1) · push O(n) · delete O(n)
+    space: O(n)
+    notes: |
+      Keeping a `@tail` reference would make push O(1) too; it is left out here so
+      the traversal is visible. `Struct` gives you the node with no ceremony.
+    code: |
+      class LinkedList
+        include Enumerable
+
+        Node = Struct.new(:value, :next_node)
+
+        def initialize(values = [])
+          @head = nil
+          values.reverse_each { |v| unshift(v) }
+        end
+
+        def unshift(value)
+          @head = Node.new(value, @head)
+          self
+        end
+
+        def push(value)
+          return unshift(value) unless @head
+          node = @head
+          node = node.next_node while node.next_node
+          node.next_node = Node.new(value, nil)
+          self
+        end
+
+        def delete(value)
+          return self unless @head
+          if @head.value == value
+            @head = @head.next_node
+            return self
+          end
+          node = @head
+          node = node.next_node while node.next_node && node.next_node.value != value
+          node.next_node = node.next_node.next_node if node.next_node
+          self
+        end
+
+        def each
+          return to_enum(:each) unless block_given?
+          node = @head
+          while node
+            yield node.value
+            node = node.next_node
+          end
+        end
+      end
+
+      list = LinkedList.new([2, 3])
+      list.unshift(1).push(4).delete(3)
+
+      p list.to_a
+      p list.count
+      p list.include?(3)
+      p list.map { |v| v * 10 }
+    expected: |
+      [1, 2, 4]
+      3
+      false
+      [10, 20, 40]

@@ -1,0 +1,57 @@
+slug: linked-list
+part: patterns
+position: 6
+title: Linked list
+blurb: |
+  Almost every linked-list question is pointer bookkeeping: reverse it, find the
+  middle, detect a cycle, merge two. Draw the three-pointer shuffle once and the
+  rest follow.
+snippets:
+  - slug: reverse-and-detect-cycle
+    title: Reverse a list, and detect a cycle
+    time: O(n)
+    space: O(1)
+    notes: |
+      Reversal is the classic prev/curr/next shuffle. Floyd's tortoise-and-hare
+      detects a cycle in constant space: if a loop exists the fast pointer laps the
+      slow one, and if it does not, the fast pointer simply runs off the end.
+    code: |
+      Node = Struct.new(:value, :next_node)
+
+      def build(values)
+        values.reverse.reduce(nil) { |tail, v| Node.new(v, tail) }
+      end
+
+      def to_a(head)
+        [].tap { |out| while head; out << head.value; head = head.next_node; end }
+      end
+
+      def reverse(head)
+        prev = nil
+        while head
+          head.next_node, prev, head = prev, head, head.next_node
+        end
+        prev
+      end
+
+      def cycle?(head)
+        slow = fast = head
+        while fast&.next_node
+          slow = slow.next_node
+          fast = fast.next_node.next_node
+          return true if slow.equal?(fast)
+        end
+        false
+      end
+
+      list = build([1, 2, 3, 4, 5])
+      p to_a(reverse(list))
+
+      looped = build([1, 2, 3])
+      p cycle?(looped)
+      looped.next_node.next_node.next_node = looped
+      p cycle?(looped)
+    expected: |
+      [5, 4, 3, 2, 1]
+      false
+      true

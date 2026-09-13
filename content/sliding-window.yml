@@ -1,0 +1,40 @@
+slug: sliding-window
+part: patterns
+position: 3
+title: Sliding window
+blurb: |
+  A contiguous range with two moving edges. Grow the right edge to satisfy the
+  goal, advance the left edge to restore the invariant — and because each edge
+  only ever moves forward, the whole scan is O(n) despite the nested look.
+snippets:
+  - slug: longest-substring-without-repeating
+    title: Longest substring without repeating characters
+    time: O(n)
+    space: O(min(n, alphabet))
+    notes: |
+      Storing the last index of each character lets the left edge jump straight
+      past the previous occurrence instead of crawling one step at a time.
+    code: |
+      def length_of_longest_substring(s)
+        last_seen = {}
+        left = 0
+        best = 0
+
+        s.each_char.with_index do |c, right|
+          left = last_seen[c] + 1 if last_seen[c] && last_seen[c] >= left
+          last_seen[c] = right
+          best = [best, right - left + 1].max
+        end
+
+        best
+      end
+
+      p length_of_longest_substring("abcabcbb")
+      p length_of_longest_substring("bbbbb")
+      p length_of_longest_substring("pwwkew")
+      p length_of_longest_substring("")
+    expected: |
+      3
+      1
+      3
+      0

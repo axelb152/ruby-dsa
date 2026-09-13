@@ -1,0 +1,52 @@
+slug: lru-cache
+part: structures
+position: 7
+title: LRU cache
+blurb: |
+  Fixed capacity, evict whatever was used longest ago, every operation O(1). The
+  textbook answer is a hash plus a doubly linked list — in Ruby, Hash is already
+  insertion-ordered, which does most of the job for you.
+snippets:
+  - slug: lru-cache
+    title: LRU cache
+    time: O(1) get and put
+    space: O(capacity)
+    notes: |
+      `delete` then re-insert moves a key to the end, because Ruby Hashes preserve
+      insertion order — so the oldest entry is always `first`. Worth saying that the
+      language-agnostic answer is a hash of nodes in a doubly linked list, and that
+      this relies on a guarantee Ruby happens to make.
+    code: |
+      class LRUCache
+        def initialize(capacity)
+          @capacity = capacity
+          @store = {}
+        end
+
+        def get(key)
+          return nil unless @store.key?(key)
+          @store[key] = @store.delete(key)
+        end
+
+        def put(key, value)
+          @store.delete(key)
+          @store[key] = value
+          @store.delete(@store.first.first) while @store.size > @capacity
+          self
+        end
+
+        def keys = @store.keys
+      end
+
+      cache = LRUCache.new(2)
+      cache.put(:a, 1).put(:b, 2)
+      p cache.get(:a)
+      cache.put(:c, 3)
+      p cache.get(:b)
+      p cache.keys
+      p cache.get(:a)
+    expected: |
+      1
+      nil
+      [:a, :c]
+      1

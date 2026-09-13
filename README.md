@@ -44,6 +44,23 @@ rake site:build   # renders _site/
 Tests run inside the same WebAssembly binary the browser downloads, so what CI asserts is
 exactly what you see on the page — no local-Ruby-versus-browser-Ruby drift.
 
+## Deploying
+
+Pages must be created before the first deploy can land:
+
+```bash
+gh repo create ruby-dsa --public --source=. --remote=origin --push
+gh api -X POST repos/axelb152/ruby-dsa/pages -f build_type=workflow
+```
+
+The second call sets the Pages source to GitHub Actions, which is what lets
+`.github/workflows/deploy.yml` publish. After that, every push to `main` runs the
+snippet suite, builds `_site/`, and deploys only if the tests pass. Pull requests
+run the tests and the build but never touch the live site.
+
+The build emits document-relative URLs, so it works unchanged at
+`axelb152.github.io/ruby-dsa/`, at a domain root, or opened from disk.
+
 ## Licence
 
 MIT — see [LICENSE](LICENSE). The algorithms are public knowledge; the implementations are

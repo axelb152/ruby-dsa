@@ -1,0 +1,75 @@
+slug: hash-map
+part: structures
+position: 3
+title: Hash map
+blurb: |
+  Bucket array plus a collision strategy. Separate chaining — a list per bucket —
+  is the one to write under time pressure; the interesting follow-up is what
+  happens to the O(1) claim when the load factor climbs.
+snippets:
+  - slug: hash-map-chaining
+    title: Hash map with separate chaining
+    time: O(1) average · O(n) worst
+    space: O(n)
+    notes: |
+      Average O(1) assumes keys spread evenly across buckets. With every key in one
+      bucket it degrades to a linear scan, which is why real implementations resize
+      once the load factor passes a threshold — mention that even if you do not
+      implement it.
+    code: |
+      class HashMap
+        include Enumerable
+
+        def initialize(bucket_count = 8)
+          @buckets = Array.new(bucket_count) { [] }
+          @size = 0
+        end
+
+        attr_reader :size
+
+        def []=(key, value)
+          pair = bucket_for(key).assoc(key)
+          if pair
+            pair[1] = value
+          else
+            bucket_for(key) << [key, value]
+            @size += 1
+          end
+          value
+        end
+
+        def [](key) = bucket_for(key).assoc(key)&.last
+
+        def key?(key) = !bucket_for(key).assoc(key).nil?
+
+        def delete(key)
+          pair = bucket_for(key).assoc(key)
+          return nil unless pair
+          bucket_for(key).delete(pair)
+          @size -= 1
+          pair[1]
+        end
+
+        def each(&) = @buckets.flatten(1).each(&)
+
+        private
+
+        def bucket_for(key) = @buckets[key.hash.abs % @buckets.size]
+      end
+
+      map = HashMap.new
+      map["one"] = 1
+      map["two"] = 2
+      map["one"] = 11
+
+      p [map["one"], map["two"], map["three"]]
+      p [map.size, map.key?("two")]
+      p map.delete("two")
+      p [map.size, map.key?("two")]
+      p map.sort_by(&:first)
+    expected: |
+      [11, 2, nil]
+      [2, true]
+      2
+      [1, false]
+      [["one", 11]]

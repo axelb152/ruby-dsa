@@ -16,7 +16,7 @@
   </div>
 
   <% if snippet.notes %>
-    <p class="mb-2 max-w-prose text-[11px] leading-relaxed text-slate-500 dark:text-slate-400"><%= snippet.notes %></p>
+    <p class="mb-2 max-w-prose text-[11px] leading-relaxed text-slate-500 dark:text-slate-400"><%= inline_code(snippet.notes) %></p>
   <% end %>
 
   <%# The pristine source. Reset reads from here, so it works before CodeMirror mounts

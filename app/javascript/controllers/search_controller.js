@@ -3,7 +3,7 @@ import { Controller } from "@hotwired/stimulus"
 // Collapsed sections are unreachable by the browser's own find-in-page, so the
 // page has to provide its own: filter, and expand whatever matched.
 export default class extends Controller {
-  static targets = ["input", "category", "snippet"]
+  static targets = ["input", "category", "snippet", "partHeading"]
 
   filter() {
     const query = this.inputTarget.value.trim().toLowerCase()
@@ -11,6 +11,7 @@ export default class extends Controller {
     if (!query) {
       this.snippetTargets.forEach((s) => { s.hidden = false })
       this.categoryTargets.forEach((c) => { c.hidden = false; c.open = false })
+      this.partHeadingTargets.forEach((h) => { h.hidden = false })
       return
     }
 
@@ -27,6 +28,11 @@ export default class extends Controller {
 
       category.hidden = !anyShown
       category.open = anyShown
+    })
+
+    // A part heading with everything beneath it filtered away is just a stray label.
+    this.partHeadingTargets.forEach((heading) => {
+      heading.hidden = !this.categoryTargets.some((c) => c.dataset.part === heading.dataset.part && !c.hidden)
     })
   }
 

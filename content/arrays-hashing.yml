@@ -1,0 +1,53 @@
+slug: arrays-hashing
+part: patterns
+position: 1
+title: Arrays & hashing
+blurb: |
+  The workhorse. A Hash turns "have I seen this before?" from a scan into a
+  lookup, which is what collapses most brute-force O(n^2) pair problems to O(n).
+  Reach for it before anything cleverer.
+snippets:
+  - slug: two-sum
+    title: Two sum
+    time: O(n)
+    space: O(n)
+    notes: |
+      One pass. Store each value's index as you go and ask whether the complement
+      has already been seen — so the pair is found before you reach its second half.
+    code: |
+      def two_sum(nums, target)
+        seen = {}
+        nums.each_with_index do |n, i|
+          j = seen[target - n]
+          return [j, i] if j
+          seen[n] = i
+        end
+        []
+      end
+
+      p two_sum([2, 7, 11, 15], 9)
+      p two_sum([3, 2, 4], 6)
+      p two_sum([1, 2], 50)
+    expected: |
+      [0, 1]
+      [1, 2]
+      []
+
+  - slug: group-anagrams
+    title: Group anagrams
+    time: O(n · k log k)
+    space: O(n · k)
+    notes: |
+      Sorted letters make a canonical key. `Hash.new { |h, k| h[k] = [] }` gives an
+      auto-vivifying Hash, which is the idiomatic Ruby way to bucket without a guard
+      clause on every insert.
+    code: |
+      def group_anagrams(words)
+        buckets = Hash.new { |h, k| h[k] = [] }
+        words.each { |w| buckets[w.chars.sort.join] << w }
+        buckets.values
+      end
+
+      p group_anagrams(%w[eat tea tan ate nat bat])
+    expected: |
+      [["eat", "tea", "ate"], ["tan", "nat"], ["bat"]]

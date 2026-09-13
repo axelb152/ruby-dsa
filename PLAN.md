@@ -141,12 +141,30 @@ good version. `_site/` is gitignored — nothing generated is ever committed.
 
 ## 6. Build order
 
-1. Rails bootstrap · Ruby 4.0.6 · bundler 2.7.2 · `git init` · MIT · README
-2. `Catalog`/`Category`/`Snippet` POROs + YAML loader
-3. **Two Pointers end to end** — CodeMirror, Reset, localStorage, Worker, timeout, output
-   → *pause here for your judgement on the edit/run/reset loop before writing 60 algorithms*
-4. Layout, TOC, search, collapse, theme
-5. `rake site:build` + the Actions workflow, deployed and verified live
-6. Content: remaining 24 of the first 25
-7. wasm test suite + `expected` blocks
-8. TODO cards for the unfilled slots
+1. ✅ Rails bootstrap · Ruby 4.0.6 · bundler 2.7.2 · `git init` · MIT · README
+2. ✅ `Catalog`/`Category`/`Snippet` POROs + YAML loader
+3. ✅ Two Pointers end to end — CodeMirror, Reset, localStorage, Worker, timeout, output
+4. ✅ Layout, TOC, search, collapse, theme
+5. ✅ `rake site:build` + Actions workflow — **build verified at a Pages-style subpath, with Ruby running**; not yet deployed live
+6. ✅ Content: **34 snippets across 32 categories** (all 18 pattern categories, 7 of 13 structures, Ruby idioms)
+7. ✅ wasm test suite + `expected` blocks — 34/34, verified to fail loudly and exit 1
+8. ✅ TODO cards for the 6 unfilled structure slots
+
+### Remaining
+
+- Push to GitHub and enable Pages (needs the repo created; see README).
+- Fill the 6 TODO structures: dynamic array, doubly linked list, ring-buffer deque,
+  class-based trie, graph representations, Fenwick/segment tree.
+- Deepen the thin pattern categories from one anchor to 3–4 snippets each.
+
+### Bugs found by building it
+
+- `json` 3.x vs Active Support 8.1 — every request after the first returned 500.
+- CodeMirror measured inside a hidden container, drawing line numbers over the code.
+- `<script type="text/plain">` holds raw text, so Rails' escaping never unwound;
+  Reset restored `&quot;`. Fixed by using `<template>`, which is parsed as HTML.
+- The importmap's URLs live in a JSON body, so the root-relative rewrite missed
+  them — every module 404'd at a Pages subpath.
+- No `<meta charset>`: fine behind Rails' Content-Type header, mojibake on a static host.
+- Two-stack queue drained one element per dequeue instead of the whole inbox,
+  breaking the amortised O(1) property the snippet exists to demonstrate.

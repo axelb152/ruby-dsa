@@ -1,0 +1,58 @@
+slug: stack-and-queue
+part: structures
+position: 2
+title: Stack & queue
+blurb: |
+  In Ruby both are an Array — `push`/`pop` for LIFO, `push`/`shift` for FIFO, all
+  O(1). The classic interview twist is building a queue out of two stacks, which
+  is only interesting because the amortised analysis is.
+snippets:
+  - slug: stack-and-queue
+    title: Stack, and a queue from two stacks
+    time: push O(1) · pop O(1) · dequeue amortised O(1)
+    space: O(n)
+    notes: |
+      Each element moves between the two stacks at most once, so although a single
+      dequeue can cost O(n), n dequeues cost O(n) in total — amortised O(1). That
+      distinction is usually the whole point of the question.
+    code: |
+      class Stack
+        def initialize = @items = []
+        def push(item) = (@items.push(item); self)
+        def pop = @items.pop
+        def peek = @items.last
+        def empty? = @items.empty?
+        def size = @items.size
+      end
+
+      class Queue2
+        def initialize
+          @inbox = []
+          @outbox = []
+        end
+
+        def enqueue(item) = (@inbox.push(item); self)
+
+        def dequeue
+          # Drain the whole inbox, not one element: the transfer must happen at
+          # most once per element for the amortised O(1) argument to hold.
+          @outbox.push(@inbox.pop) while @inbox.any? if @outbox.empty?
+          @outbox.pop
+        end
+
+        def size = @inbox.size + @outbox.size
+      end
+
+      stack = Stack.new
+      stack.push(1).push(2).push(3)
+      p [stack.pop, stack.peek, stack.size]
+
+      queue = Queue2.new
+      queue.enqueue(:a).enqueue(:b)
+      p queue.dequeue
+      queue.enqueue(:c)
+      p [queue.dequeue, queue.dequeue, queue.dequeue]
+    expected: |
+      [3, 2, 2]
+      :a
+      [:b, :c, nil]

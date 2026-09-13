@@ -1,0 +1,35 @@
+slug: intervals
+part: patterns
+position: 16
+title: Intervals
+blurb: |
+  Sort by start, then sweep. Nearly every interval question — merge, insert, count
+  overlaps, fit meetings into rooms — is that sort followed by one linear pass
+  comparing each interval to the one you are currently holding.
+snippets:
+  - slug: merge-intervals
+    title: Merge overlapping intervals
+    time: O(n log n)
+    space: O(n)
+    notes: |
+      Sorting by start is what makes a single pass sufficient: once ordered, an
+      interval can only ever overlap the one immediately before it. Note `>=` —
+      whether [1,2] and [2,3] touch or merge is a question worth asking out loud.
+    code: |
+      def merge_intervals(intervals)
+        intervals.sort_by(&:first).each_with_object([]) do |(start, finish), merged|
+          if merged.any? && start <= merged.last[1]
+            merged.last[1] = [merged.last[1], finish].max
+          else
+            merged << [start, finish]
+          end
+        end
+      end
+
+      p merge_intervals([[1, 3], [2, 6], [8, 10], [15, 18]])
+      p merge_intervals([[1, 4], [4, 5]])
+      p merge_intervals([])
+    expected: |
+      [[1, 6], [8, 10], [15, 18]]
+      [[1, 5]]
+      []

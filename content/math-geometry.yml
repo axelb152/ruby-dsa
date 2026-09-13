@@ -1,0 +1,35 @@
+slug: math-geometry
+part: patterns
+position: 18
+title: Math & geometry
+blurb: |
+  Matrix rotation, spiral order, happy numbers. Usually less about cleverness than
+  about getting indices right under pressure — and Ruby's Array methods remove most
+  of the index arithmetic if you know them.
+snippets:
+  - slug: rotate-matrix
+    title: Rotate a matrix 90 degrees
+    time: O(n^2)
+    space: O(n^2) here, O(1) in place
+    notes: |
+      Transpose then reverse each row. `transpose` is built in, so the whole
+      rotation is one line — but be ready to write the in-place layer-by-layer swap,
+      which is what is usually being asked for.
+    code: |
+      def rotate(matrix) = matrix.transpose.map(&:reverse)
+
+      def rotate_in_place(matrix)
+        matrix.reverse!
+        (0...matrix.size).each do |i|
+          (i + 1...matrix.size).each do |j|
+            matrix[i][j], matrix[j][i] = matrix[j][i], matrix[i][j]
+          end
+        end
+        matrix
+      end
+
+      p rotate([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
+      p rotate_in_place([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
+    expected: |
+      [[7, 4, 1], [8, 5, 2], [9, 6, 3]]
+      [[7, 4, 1], [8, 5, 2], [9, 6, 3]]

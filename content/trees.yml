@@ -1,0 +1,58 @@
+slug: trees
+part: patterns
+position: 7
+title: Trees
+blurb: |
+  Recursion is the natural shape: solve for the children, combine. Reach for an
+  explicit queue only when the question is genuinely about levels — breadth-first
+  order is the one thing recursion does not give you for free.
+snippets:
+  - slug: traversals-and-depth
+    title: Traversals, depth, and level order
+    time: O(n)
+    space: O(h) recursive, O(w) for BFS
+    notes: |
+      In-order on a BST yields sorted values, which is the property most BST
+      questions hinge on. Level order needs a queue — and taking `queue.size`
+      before the inner loop is what keeps each level separate.
+    code: |
+      Tree = Struct.new(:value, :left, :right)
+
+      def leaf(v) = Tree.new(v, nil, nil)
+
+      root = Tree.new(4,
+        Tree.new(2, leaf(1), leaf(3)),
+        Tree.new(7, leaf(6), leaf(9)))
+
+      def in_order(node, out = [])
+        return out unless node
+        in_order(node.left, out)
+        out << node.value
+        in_order(node.right, out)
+      end
+
+      def depth(node)
+        node ? 1 + [depth(node.left), depth(node.right)].max : 0
+      end
+
+      def level_order(root)
+        levels = []
+        queue = [root].compact
+
+        until queue.empty?
+          levels << queue.map(&:value)
+          queue = queue.flat_map { |n| [n.left, n.right] }.compact
+        end
+
+        levels
+      end
+
+      p in_order(root)
+      p depth(root)
+      p level_order(root)
+      p level_order(nil)
+    expected: |
+      [1, 2, 3, 4, 6, 7, 9]
+      3
+      [[4], [2, 7], [1, 3, 6, 9]]
+      []

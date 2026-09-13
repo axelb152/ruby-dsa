@@ -1,0 +1,61 @@
+slug: binary-search
+part: patterns
+position: 5
+title: Binary search
+blurb: |
+  Halve the search space each step. The hard part is never the idea, it is the
+  boundary: pick `lo < hi` with `hi = mid` and you converge on an insertion point;
+  pick `lo <= hi` with `hi = mid - 1` and you are testing for presence.
+snippets:
+  - slug: classic-binary-search
+    title: Find a value in a sorted array
+    time: O(log n)
+    space: O(1)
+    notes: |
+      `(lo + hi) / 2` cannot overflow in Ruby — Integers are arbitrary precision —
+      so the `lo + (hi - lo) / 2` dance you may have learnt in C or Java buys
+      nothing here. Say that out loud if asked; it shows you know why it exists.
+    code: |
+      def binary_search(nums, target)
+        lo, hi = 0, nums.size - 1
+
+        while lo <= hi
+          mid = (lo + hi) / 2
+          case nums[mid] <=> target
+          when 0  then return mid
+          when -1 then lo = mid + 1
+          else         hi = mid - 1
+          end
+        end
+
+        -1
+      end
+
+      p binary_search([-1, 0, 3, 5, 9, 12], 9)
+      p binary_search([-1, 0, 3, 5, 9, 12], 2)
+      p binary_search([], 1)
+    expected: |
+      4
+      -1
+      -1
+
+  - slug: bsearch-builtin
+    title: The same thing with Array#bsearch
+    time: O(log n)
+    space: O(1)
+    notes: |
+      Ruby ships binary search. find-minimum mode takes a block returning true/false
+      and yields the first element where it flips — that is your lower bound. Know it
+      exists, then write the loop anyway if the interviewer wants the mechanics.
+    code: |
+      nums = [-1, 0, 3, 5, 9, 12]
+
+      p nums.bsearch { |n| n >= 9 }
+      p nums.bsearch { |n| n >= 2 }
+      p nums.index(nums.bsearch { |n| n >= 5 })
+      p nums.bsearch { |n| n >= 99 }
+    expected: |
+      9
+      3
+      3
+      nil

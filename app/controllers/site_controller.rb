@@ -1,5 +1,3 @@
 class SiteController < ApplicationController
-  def index
-    @catalog = Catalog.current
-  end
+  def index; end
 end

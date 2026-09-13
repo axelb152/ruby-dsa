@@ -1,0 +1,35 @@
+slug: heap
+part: patterns
+position: 9
+title: Heap / priority queue
+blurb: |
+  When you need the smallest or largest thing repeatedly but not a full ordering,
+  a heap gives you O(log n) insert and extract instead of re-sorting. Ruby has no
+  built-in heap — know that, and know when sorting is simply good enough.
+snippets:
+  - slug: top-k-frequent
+    title: Top K frequent elements
+    time: O(n log n) sorting, O(n) by bucket
+    space: O(n)
+    notes: |
+      `tally` counts in one pass. Sorting the distinct values is O(d log d) and
+      almost always fine; bucketing by frequency is the O(n) answer an interviewer
+      is fishing for, since a count can never exceed n.
+    code: |
+      def top_k_sorted(nums, k)
+        nums.tally.max_by(k) { |_value, count| count }.map(&:first)
+      end
+
+      def top_k_bucketed(nums, k)
+        buckets = Array.new(nums.size + 1) { [] }
+        nums.tally.each { |value, count| buckets[count] << value }
+        buckets.compact.flatten.last(k).reverse
+      end
+
+      p top_k_sorted([1, 1, 1, 2, 2, 3], 2)
+      p top_k_bucketed([1, 1, 1, 2, 2, 3], 2)
+      p top_k_sorted([4], 1)
+    expected: |
+      [1, 2]
+      [1, 2]
+      [4]

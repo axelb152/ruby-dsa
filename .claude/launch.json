@@ -1,0 +1,6 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    { "name": "ruby-dsa", "runtimeExecutable": "bin/dev", "runtimeArgs": [], "port": 3000 }
+  ]
+}

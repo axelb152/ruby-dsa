@@ -1,0 +1,50 @@
+slug: graphs
+part: patterns
+position: 11
+title: Graphs
+blurb: |
+  A grid is a graph; so is a set of prerequisites. Once you see the adjacency, the
+  traversal is mechanical — BFS for fewest steps, DFS for reachability, and a
+  visited set in both so you terminate.
+snippets:
+  - slug: number-of-islands
+    title: Number of islands (flood fill)
+    time: O(rows · cols)
+    space: O(rows · cols) worst case
+    notes: |
+      Each cell is visited once: the outer loop finds an unvisited land cell, then
+      the flood sinks its whole component so it is never counted again. Mutating the
+      grid is the standard trick for O(1) extra space — mention it, and ask whether
+      mutating the input is acceptable.
+    code: |
+      def count_islands(grid)
+        grid = grid.map(&:dup)
+
+        sink = lambda do |r, c|
+          return if r < 0 || c < 0 || r >= grid.size || c >= grid[0].size
+          return unless grid[r][c] == "1"
+          grid[r][c] = "0"
+          [[1, 0], [-1, 0], [0, 1], [0, -1]].each { |dr, dc| sink.call(r + dr, c + dc) }
+        end
+
+        count = 0
+        grid.each_index do |r|
+          grid[r].each_index do |c|
+            next unless grid[r][c] == "1"
+            count += 1
+            sink.call(r, c)
+          end
+        end
+        count
+      end
+
+      p count_islands([
+        %w[1 1 0 0 0],
+        %w[1 1 0 0 0],
+        %w[0 0 1 0 0],
+        %w[0 0 0 1 1]
+      ])
+      p count_islands([%w[0 0], %w[0 0]])
+    expected: |
+      3
+      0

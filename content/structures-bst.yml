@@ -1,0 +1,86 @@
+slug: binary-search-tree
+part: structures
+position: 4
+title: Binary search tree
+blurb: |
+  Left subtree smaller, right subtree larger — an invariant that makes lookup
+  O(h). The catch is that h is only log n while the tree stays balanced, and
+  inserting sorted data degrades it into a linked list.
+snippets:
+  - slug: bst
+    title: Binary search tree
+    time: O(log n) balanced · O(n) degenerate
+    space: O(n)
+    notes: |
+      In-order traversal yields sorted values, which is the property most BST
+      questions rest on. Insert 1, 2, 3, 4 in order and every node has only a right
+      child: height n, lookup O(n). That is what AVL and red-black trees exist to fix.
+    code: |
+      class BST
+        include Enumerable
+
+        Node = Struct.new(:value, :left, :right)
+
+        def initialize(values = [])
+          @root = nil
+          values.each { |v| insert(v) }
+        end
+
+        def insert(value)
+          @root = insert_below(@root, value)
+          self
+        end
+
+        def include?(value)
+          node = @root
+          while node
+            return true if value == node.value
+            node = value < node.value ? node.left : node.right
+          end
+          false
+        end
+
+        def min = leftmost(@root)&.value
+
+        def height(node = @root)
+          node ? 1 + [height(node.left), height(node.right)].max : 0
+        end
+
+        def each(node = @root, &block)
+          return to_enum(:each) unless block
+          return unless node
+          each(node.left, &block)
+          block.call(node.value)
+          each(node.right, &block)
+        end
+
+        private
+
+        def insert_below(node, value)
+          return Node.new(value, nil, nil) unless node
+          if value < node.value
+            node.left = insert_below(node.left, value)
+          elsif value > node.value
+            node.right = insert_below(node.right, value)
+          end
+          node
+        end
+
+        def leftmost(node)
+          node = node.left while node&.left
+          node
+        end
+      end
+
+      balanced = BST.new([5, 3, 8, 1, 4, 7, 9])
+      p balanced.to_a
+      p [balanced.include?(4), balanced.include?(6)]
+      p [balanced.min, balanced.height]
+
+      degenerate = BST.new([1, 2, 3, 4])
+      p [degenerate.to_a, degenerate.height]
+    expected: |
+      [1, 3, 4, 5, 7, 8, 9]
+      [true, false]
+      [1, 3]
+      [[1, 2, 3, 4], 4]

@@ -1,0 +1,39 @@
+slug: backtracking
+part: patterns
+position: 10
+title: Backtracking
+blurb: |
+  Build a candidate one choice at a time, abandon it the moment it cannot work,
+  and undo the choice on the way out. The undo is the whole pattern — forget it
+  and every branch inherits the last one's state.
+snippets:
+  - slug: subsets-and-permutations
+    title: Subsets and permutations
+    time: O(n · 2^n) and O(n · n!)
+    space: O(n) excluding output
+    notes: |
+      Note the `pop` after each recursive call — that is the "back" in backtracking.
+      Ruby's `Array#combination` and `#permutation` do both for you, which is worth
+      saying before you write the recursion by hand.
+    code: |
+      def subsets(nums)
+        out = []
+        walk = lambda do |start, current|
+          out << current.dup
+          (start...nums.size).each do |i|
+            current.push(nums[i])
+            walk.call(i + 1, current)
+            current.pop
+          end
+        end
+        walk.call(0, [])
+        out
+      end
+
+      p subsets([1, 2, 3])
+      p (0..3).flat_map { |n| [1, 2, 3].combination(n).to_a }
+      p [1, 2, 3].permutation.to_a.size
+    expected: |
+      [[], [1], [1, 2], [1, 2, 3], [1, 3], [2], [2, 3], [3]]
+      [[], [1], [2], [3], [1, 2], [1, 3], [2, 3], [1, 2, 3]]
+      6

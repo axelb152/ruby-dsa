@@ -45,3 +45,6 @@
 
 # Bundled gems (project-local path)
 /vendor/bundle/
+
+# Claude Code: share launch config, keep local overrides out
+/.claude/settings.local.json

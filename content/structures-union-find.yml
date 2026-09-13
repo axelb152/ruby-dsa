@@ -1,0 +1,60 @@
+slug: union-find
+part: structures
+position: 6
+title: Union-find
+blurb: |
+  Disjoint sets with two operations: which group is x in, and merge these two
+  groups. The answer to "are these connected?" and "does adding this edge make a
+  cycle?" — and it is far simpler than the graph traversal people reach for first.
+snippets:
+  - slug: union-find
+    title: Union-find with path compression
+    time: near O(1) amortised
+    space: O(n)
+    notes: |
+      Two optimisations do the work. Path compression flattens each chain during
+      `find`; union by rank keeps the shallower tree underneath. Together they give
+      the inverse-Ackermann bound — effectively constant, and safe to call O(1).
+    code: |
+      class UnionFind
+        def initialize(size)
+          @parent = (0...size).to_a
+          @rank = Array.new(size, 0)
+          @groups = size
+        end
+
+        attr_reader :groups
+
+        def find(x)
+          @parent[x] = find(@parent[x]) unless @parent[x] == x
+          @parent[x]
+        end
+
+        def union(a, b)
+          root_a, root_b = find(a), find(b)
+          return false if root_a == root_b
+
+          root_a, root_b = root_b, root_a if @rank[root_a] < @rank[root_b]
+          @parent[root_b] = root_a
+          @rank[root_a] += 1 if @rank[root_a] == @rank[root_b]
+          @groups -= 1
+          true
+        end
+
+        def connected?(a, b) = find(a) == find(b)
+      end
+
+      uf = UnionFind.new(6)
+      [[0, 1], [1, 2], [3, 4]].each { |a, b| uf.union(a, b) }
+
+      p [uf.connected?(0, 2), uf.connected?(0, 3)]
+      p uf.groups
+      p uf.union(0, 2)
+      p uf.union(2, 4)
+      p uf.groups
+    expected: |
+      [true, false]
+      3
+      false
+      true
+      2

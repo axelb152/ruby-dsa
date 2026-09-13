@@ -1,0 +1,78 @@
+slug: min-heap
+part: structures
+position: 5
+title: Min-heap
+blurb: |
+  A complete binary tree flattened into an array, where every parent is no larger
+  than its children. Ruby ships no heap, so this is worth being able to write —
+  and it is the engine behind every priority queue and Dijkstra implementation.
+snippets:
+  - slug: min-heap
+    title: Min-heap / priority queue
+    time: push O(log n) · pop O(log n) · peek O(1)
+    space: O(n)
+    notes: |
+      The array encoding is the whole trick: children of `i` live at `2i + 1` and
+      `2i + 2`, parent at `(i - 1) / 2`. No node objects, no pointers — push appends
+      then sifts up, pop swaps the last element to the root then sifts down.
+    code: |
+      class MinHeap
+        def initialize(items = [])
+          @items = []
+          items.each { |item| push(item) }
+        end
+
+        def size = @items.size
+        def empty? = @items.empty?
+        def peek = @items.first
+
+        def push(item)
+          @items << item
+          sift_up(@items.size - 1)
+          self
+        end
+
+        def pop
+          return nil if @items.empty?
+          smallest = @items.first
+          last = @items.pop
+          unless @items.empty?
+            @items[0] = last
+            sift_down(0)
+          end
+          smallest
+        end
+
+        private
+
+        def sift_up(index)
+          while index.positive?
+            parent = (index - 1) / 2
+            break if @items[parent] <= @items[index]
+            @items[parent], @items[index] = @items[index], @items[parent]
+            index = parent
+          end
+        end
+
+        def sift_down(index)
+          loop do
+            left = 2 * index + 1
+            right = left + 1
+            smallest = index
+            smallest = left  if left  < @items.size && @items[left]  < @items[smallest]
+            smallest = right if right < @items.size && @items[right] < @items[smallest]
+            break if smallest == index
+            @items[index], @items[smallest] = @items[smallest], @items[index]
+            index = smallest
+          end
+        end
+      end
+
+      heap = MinHeap.new([5, 3, 8, 1, 9, 2])
+      p heap.peek
+      p Array.new(heap.size) { heap.pop }
+      p heap.pop
+    expected: |
+      1
+      [1, 2, 3, 5, 8, 9]
+      nil

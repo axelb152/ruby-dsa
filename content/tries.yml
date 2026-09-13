@@ -1,0 +1,47 @@
+slug: tries
+part: patterns
+position: 8
+title: Tries
+blurb: |
+  A tree keyed by character. Lookup costs the length of the word rather than the
+  size of the dictionary, and — unlike a Hash of whole words — it answers prefix
+  questions, which is the only reason to prefer one.
+snippets:
+  - slug: prefix-tree
+    title: Prefix tree with a nested Hash
+    time: O(len) per operation
+    space: O(total characters)
+    notes: |
+      A trie is just nested Hashes. An auto-vivifying default block builds the path
+      as you walk it, so insert is a `reduce`; a sentinel key marks a complete word,
+      which is what distinguishes `search` from `starts_with?`.
+    code: |
+      TERMINAL = :end
+
+      def build_trie(words)
+        root = {}
+        words.each do |word|
+          node = word.each_char.reduce(root) { |n, c| n[c] ||= {} }
+          node[TERMINAL] = true
+        end
+        root
+      end
+
+      def walk(root, prefix)
+        prefix.each_char.reduce(root) { |node, c| node && node[c] }
+      end
+
+      def search(root, word) = !!walk(root, word)&.key?(TERMINAL)
+      def starts_with?(root, prefix) = !walk(root, prefix).nil?
+
+      trie = build_trie(%w[apple app apply])
+
+      p search(trie, "app")
+      p search(trie, "appl")
+      p starts_with?(trie, "appl")
+      p starts_with?(trie, "banana")
+    expected: |
+      true
+      false
+      true
+      false

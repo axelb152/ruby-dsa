@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <html lang="en" class="scroll-smooth">
   <head>
+    <%# Explicit, because a static host may serve .html without a charset in the
+        Content-Type header — and then every em dash renders as mojibake. %>
+    <meta charset="utf-8">
     <title><%= content_for(:title) || "ruby-dsa — data structures & algorithms in Ruby" %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="description" content="Editable, runnable Ruby implementations of the data structures and algorithms asked in coding interviews.">

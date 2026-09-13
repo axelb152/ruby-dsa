@@ -1,0 +1,101 @@
+slug: ruby-idioms
+part: idioms
+position: 1
+title: Ruby idioms worth knowing
+blurb: |
+  The methods that turn five lines of loop into one, and the two or three places
+  where Ruby's complexity differs from the Python or Java answer an interviewer
+  may be carrying in their head.
+snippets:
+  - slug: counting-and-grouping
+    title: Counting and grouping
+    time: O(n)
+    space: O(n)
+    notes: |
+      `tally` replaces the count-into-a-hash loop entirely. `Hash.new(0)` gives a
+      default for arbitrary accumulation, and `Hash.new { |h, k| h[k] = [] }` gives
+      an auto-vivifying bucket — note the block form assigns, so the array persists.
+    code: |
+      words = %w[apple banana apple kiwi banana apple]
+
+      p words.tally
+      p words.group_by(&:size)
+      p words.each_with_object(Hash.new(0)) { |w, h| h[w] += 1 }
+      p words.uniq.sort
+      p words.tally.max_by { |_w, n| n }
+    expected: |
+      {"apple" => 3, "banana" => 2, "kiwi" => 1}
+      {5 => ["apple", "apple", "apple"], 6 => ["banana", "banana"], 4 => ["kiwi"]}
+      {"apple" => 3, "banana" => 2, "kiwi" => 1}
+      ["apple", "banana", "kiwi"]
+      ["apple", 3]
+
+  - slug: windows-and-chunks
+    title: Windows, chunks and comparison
+    time: O(n)
+    space: O(n)
+    notes: |
+      `each_cons` gives overlapping windows — the whole sliding-window setup in one
+      call. `<=>` returns -1, 0 or 1, and defining it plus including `Comparable`
+      gets you `<`, `between?`, `sort` and `min`/`max` for free.
+    code: |
+      nums = [1, 3, 6, 10, 15]
+
+      p nums.each_cons(2).map { |a, b| b - a }
+      p nums.each_slice(2).to_a
+      p nums.each_cons(2).all? { |a, b| a < b }
+
+      Version = Struct.new(:major, :minor) do
+        include Comparable
+        def <=>(other) = [major, minor] <=> [other.major, other.minor]
+        def to_s = "#{major}.#{minor}"
+      end
+
+      versions = [Version.new(2, 1), Version.new(1, 9), Version.new(2, 0)]
+      p versions.sort.map(&:to_s)
+      p versions.max.to_s
+      p Version.new(1, 5).between?(Version.new(1, 0), Version.new(2, 0))
+    expected: |
+      [2, 3, 4, 5]
+      [[1, 3], [6, 10], [15]]
+      true
+      ["1.9", "2.0", "2.1"]
+      "2.1"
+      true
+
+  - slug: complexity-surprises
+    title: Where Ruby's complexity surprises people
+    time: see notes
+    space: O(1)
+    notes: |
+      `Array#shift` is O(1): CRuby moves the array's start pointer rather than
+      re-indexing, so an Array is a perfectly good queue — the same operation on a
+      Python list is O(n), which is why Python answers reach for a deque. `include?`
+      on an Array is O(n) while `Set#include?` and `Hash#key?` are O(1), and that
+      single swap is the most common real speed-up in an interview answer.
+    code: |
+      require "set"
+
+      queue = [1, 2, 3]
+      p [queue.shift, queue]
+
+      haystack = (1..50_000).to_a
+      as_set = haystack.to_set
+
+      p haystack.include?(49_999)
+      p as_set.include?(49_999)
+      p as_set.size
+
+      p [1, 2, 3].sum
+      p (1..10).step(3).to_a
+      p [3, 1, 2].sort_by { |n| -n }
+      p [[1, "b"], [1, "a"], [0, "c"]].sort
+    expected: |
+      [1, [2, 3]]
+      true
+      true
+      50000
+      6
+      [1, 4, 7, 10]
+      [3, 2, 1]
+      [[0, "c"], [1, "a"], [1, "b"]]
