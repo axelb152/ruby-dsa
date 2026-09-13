@@ -59,3 +59,71 @@ snippets:
       3
       3
       nil
+
+  - slug: rotated-sorted-array
+    title: Search a rotated sorted array
+    time: O(log n)
+    space: O(1)
+    notes: |
+      A rotated array is two sorted runs, and at any midpoint at least one half is
+      properly sorted. Work out which half that is, check whether the target falls
+      inside it, and discard the other — the invariant survives, so it is still
+      O(log n).
+    code: |
+      def search_rotated(nums, target)
+        lo, hi = 0, nums.size - 1
+
+        while lo <= hi
+          mid = (lo + hi) / 2
+          return mid if nums[mid] == target
+
+          if nums[lo] <= nums[mid] # left half is sorted
+            nums[lo] <= target && target < nums[mid] ? hi = mid - 1 : lo = mid + 1
+          else                      # right half is sorted
+            nums[mid] < target && target <= nums[hi] ? lo = mid + 1 : hi = mid - 1
+          end
+        end
+
+        -1
+      end
+
+      p search_rotated([4, 5, 6, 7, 0, 1, 2], 0)
+      p search_rotated([4, 5, 6, 7, 0, 1, 2], 3)
+      p search_rotated([1], 1)
+      p search_rotated([], 5)
+    expected: |
+      4
+      -1
+      0
+      -1
+
+  - slug: binary-search-on-answer
+    title: Binary search on the answer
+    time: O(n log range)
+    space: O(1)
+    notes: |
+      The most transferable variant, and the one people miss. When a candidate
+      answer is cheap to *check* and "works" is monotonic — if speed k finishes in
+      time then so does k + 1 — you can binary search the answer space itself rather
+      than any array.
+    code: |
+      def min_eating_speed(piles, hours)
+        feasible = ->(speed) { piles.sum { |pile| (pile + speed - 1) / speed } <= hours }
+
+        lo, hi = 1, piles.max
+        while lo < hi
+          mid = (lo + hi) / 2
+          feasible.call(mid) ? hi = mid : lo = mid + 1
+        end
+        lo
+      end
+
+      p min_eating_speed([3, 6, 7, 11], 8)
+      p min_eating_speed([30, 11, 23, 4, 20], 5)
+      p min_eating_speed([30, 11, 23, 4, 20], 6)
+      p min_eating_speed([1], 1)
+    expected: |
+      4
+      30
+      23
+      1

@@ -45,3 +45,74 @@ snippets:
       false
       true
       false
+
+  - slug: longest-common-prefix
+    title: Longest common prefix
+    time: O(total characters)
+    space: O(1) for the idiomatic version
+    notes: |
+      A trie is the textbook answer — walk down while each node has exactly one
+      child and no word ends. But for one query, comparing the lexicographic min
+      and max is enough: every other string lies between them, so their shared
+      prefix is shared by all.
+    code: |
+      def longest_common_prefix(words)
+        return "" if words.empty?
+
+        first, last = words.minmax
+        length = first.each_char.zip(last.each_char).take_while { |a, b| a == b }.size
+        first[0, length]
+      end
+
+      p longest_common_prefix(%w[flower flow flight])
+      p longest_common_prefix(%w[dog racecar car])
+      p longest_common_prefix(%w[interspecies interstellar interstate])
+      p longest_common_prefix([])
+      p longest_common_prefix(%w[alone])
+    expected: |
+      "fl"
+      ""
+      "inters"
+      ""
+      "alone"
+
+  - slug: replace-words
+    title: Replace words with their shortest root
+    time: O(total characters)
+    space: O(roots)
+    notes: |
+      The canonical use of a trie: walk each word down the tree and stop at the
+      first node marking a complete root. A Hash of roots would need you to try
+      every prefix length separately; the trie finds the shortest in one descent.
+    code: |
+      TERMINAL = :end
+
+      def build_trie(roots)
+        roots.each_with_object({}) do |root, trie|
+          node = root.each_char.reduce(trie) { |n, c| n[c] ||= {} }
+          node[TERMINAL] = true
+        end
+      end
+
+      def shortest_root(trie, word)
+        node = trie
+        word.each_char.with_index do |c, i|
+          node = node[c]
+          return nil unless node
+          return word[0..i] if node[TERMINAL]
+        end
+        nil
+      end
+
+      def replace_words(roots, sentence)
+        trie = build_trie(roots)
+        sentence.split.map { |w| shortest_root(trie, w) || w }.join(" ")
+      end
+
+      p replace_words(%w[cat bat rat], "the cattle was rattled by the battery")
+      p replace_words(%w[a aa aaa], "a aa aaa aaaa")
+      p replace_words([], "nothing changes here")
+    expected: |
+      "the cat was rat by the bat"
+      "a a a a"
+      "nothing changes here"

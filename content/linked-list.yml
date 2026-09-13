@@ -55,3 +55,90 @@ snippets:
       [5, 4, 3, 2, 1]
       false
       true
+
+  - slug: merge-two-sorted
+    title: Merge two sorted lists
+    time: O(n + m)
+    space: O(1)
+    notes: |
+      A dummy head removes the "is this the first node?" branch entirely — you
+      always append to `tail`, and return `dummy.next_node` at the end. The same
+      trick cleans up almost every list-building problem.
+    code: |
+      Node = Struct.new(:value, :next_node)
+
+      def build(values) = values.reverse.reduce(nil) { |tail, v| Node.new(v, tail) }
+      def to_a(head) = [].tap { |o| while head; o << head.value; head = head.next_node; end }
+
+      def merge(a, b)
+        dummy = Node.new(nil, nil)
+        tail = dummy
+
+        while a && b
+          if a.value <= b.value
+            tail.next_node, a = a, a.next_node
+          else
+            tail.next_node, b = b, b.next_node
+          end
+          tail = tail.next_node
+        end
+
+        tail.next_node = a || b
+        dummy.next_node
+      end
+
+      p to_a(merge(build([1, 3, 5]), build([2, 4, 6])))
+      p to_a(merge(build([]), build([1])))
+      p to_a(merge(build([1, 2]), build([])))
+    expected: |
+      [1, 2, 3, 4, 5, 6]
+      [1]
+      [1, 2]
+
+  - slug: middle-and-nth-from-end
+    title: Find the middle, and remove the nth from the end
+    time: O(n)
+    space: O(1)
+    notes: |
+      Both are two pointers separated by a gap. For the middle, the fast pointer
+      moves twice as fast; for the nth from the end, it starts n nodes ahead. Neither
+      needs a length pass, which is the point.
+    code: |
+      Node = Struct.new(:value, :next_node)
+
+      def build(values) = values.reverse.reduce(nil) { |tail, v| Node.new(v, tail) }
+      def to_a(head) = [].tap { |o| while head; o << head.value; head = head.next_node; end }
+
+      def middle(head)
+        slow = fast = head
+        while fast&.next_node
+          slow = slow.next_node
+          fast = fast.next_node.next_node
+        end
+        slow&.value
+      end
+
+      def remove_nth_from_end(head, n)
+        dummy = Node.new(nil, head)
+        lead = trail = dummy
+        n.times { lead = lead&.next_node }
+        return head unless lead
+
+        while lead.next_node
+          lead = lead.next_node
+          trail = trail.next_node
+        end
+
+        trail.next_node = trail.next_node.next_node
+        dummy.next_node
+      end
+
+      p middle(build([1, 2, 3, 4, 5]))
+      p middle(build([1, 2, 3, 4]))
+      p to_a(remove_nth_from_end(build([1, 2, 3, 4, 5]), 2))
+      p to_a(remove_nth_from_end(build([1]), 1))
+    expected: |
+      3
+      3
+      [1, 2, 3, 5]
+      []

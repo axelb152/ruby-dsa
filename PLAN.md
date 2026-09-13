@@ -146,16 +146,18 @@ good version. `_site/` is gitignored — nothing generated is ever committed.
 3. ✅ Two Pointers end to end — CodeMirror, Reset, localStorage, Worker, timeout, output
 4. ✅ Layout, TOC, search, collapse, theme
 5. ✅ `rake site:build` + Actions workflow — **build verified at a Pages-style subpath, with Ruby running**; not yet deployed live
-6. ✅ Content: **34 snippets across 32 categories** (all 18 pattern categories, 7 of 13 structures, Ruby idioms)
-7. ✅ wasm test suite + `expected` blocks — 34/34, verified to fail loudly and exit 1
-8. ✅ TODO cards for the 6 unfilled structure slots
+6. ✅ Content: **72 snippets across 32 categories** — all 13 structures implemented,
+   all 18 pattern categories at 3–4 snippets, Ruby idioms. No TODO slots left.
+7. ✅ wasm test suite + `expected` blocks — 72/72, verified to fail loudly and exit 1
+8. ✅ TODO cards — all filled
 
 ### Remaining
 
-- Push to GitHub and enable Pages (needs the repo created; see README).
-- Fill the 6 TODO structures: dynamic array, doubly linked list, ring-buffer deque,
-  class-based trie, graph representations, Fenwick/segment tree.
-- Deepen the thin pattern categories from one anchor to 3–4 snippets each.
+- **The workflow has never run.** The branch is `master`; the workflow triggers on
+  `main`. Rename the branch (or retarget the workflow) before the first deploy.
+- Optional depth: the 13 structures carry one substantial implementation each,
+  which suits them; the patterns could go from 3–4 to 5+ if you want more practice
+  surface.
 
 ### Bugs found by building it
 

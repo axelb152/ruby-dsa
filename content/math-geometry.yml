@@ -33,3 +33,73 @@ snippets:
     expected: |
       [[7, 4, 1], [8, 5, 2], [9, 6, 3]]
       [[7, 4, 1], [8, 5, 2], [9, 6, 3]]
+
+  - slug: spiral-matrix
+    title: Spiral order
+    time: O(rows · cols)
+    space: O(1) extra
+    notes: |
+      Peeling: take the top row, rotate what remains anticlockwise, repeat. It is a
+      three-line recursion in Ruby because `transpose` and `reverse` are built in —
+      worth showing, then offering the four-boundary loop if they want the index
+      arithmetic.
+    code: |
+      def spiral(matrix)
+        return [] if matrix.empty? || matrix.first.empty?
+        matrix.first + spiral(matrix.drop(1).transpose.reverse)
+      end
+
+      p spiral([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
+      p spiral([[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12]])
+      p spiral([[7]])
+      p spiral([])
+    expected: |
+      [1, 2, 3, 6, 9, 8, 7, 4, 5]
+      [1, 2, 3, 4, 8, 12, 11, 10, 9, 5, 6, 7]
+      [7]
+      []
+
+  - slug: fast-power-and-happy
+    title: Fast exponentiation, and happy numbers
+    time: O(log n) and O(log n) per step
+    space: O(1)
+    notes: |
+      Squaring halves the exponent each round, so 2^30 costs five multiplications
+      rather than thirty. Happy numbers reuse Floyd's cycle detection from the
+      linked-list section — any "does this process repeat?" question is that same
+      tortoise and hare.
+    code: |
+      def power(base, exponent)
+        return 1.0 / power(base, -exponent) if exponent.negative?
+
+        result = 1
+        while exponent.positive?
+          result *= base if exponent.odd?
+          base *= base
+          exponent >>= 1
+        end
+        result
+      end
+
+      def next_square_sum(n) = n.digits.sum { |d| d * d }
+
+      def happy?(n)
+        slow = fast = n
+        loop do
+          slow = next_square_sum(slow)
+          fast = next_square_sum(next_square_sum(fast))
+          return true if fast == 1
+          break if slow == fast
+        end
+        false
+      end
+
+      p power(2, 10)
+      p power(3, 0)
+      p power(2, -2)
+      p [1, 7, 19, 2, 4].map { |n| happy?(n) }
+    expected: |
+      1024
+      1
+      0.25
+      [true, true, true, false, false]

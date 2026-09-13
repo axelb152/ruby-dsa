@@ -37,3 +37,87 @@ snippets:
       [[], [1], [1, 2], [1, 2, 3], [1, 3], [2], [2, 3], [3]]
       [[], [1], [2], [3], [1, 2], [1, 3], [2, 3], [1, 2, 3]]
       6
+
+  - slug: combination-sum
+    title: Combination sum
+    time: O(n^(target/min))
+    space: O(target/min)
+    notes: |
+      Passing `start` rather than restarting at 0 is what stops [2,3] and [3,2]
+      both appearing. Candidates may repeat here, so the recursive call passes `i`
+      again rather than `i + 1` — that single character is the difference between
+      "reuse allowed" and "each used once".
+    code: |
+      def combination_sum(candidates, target)
+        results = []
+
+        walk = lambda do |start, remaining, current|
+          return results << current.dup if remaining.zero?
+          return if remaining.negative?
+
+          (start...candidates.size).each do |i|
+            current.push(candidates[i])
+            walk.call(i, remaining - candidates[i], current)
+            current.pop
+          end
+        end
+
+        walk.call(0, target, [])
+        results
+      end
+
+      p combination_sum([2, 3, 6, 7], 7)
+      p combination_sum([2], 1)
+      p combination_sum([2, 4], 6)
+    expected: |
+      [[2, 2, 3], [7]]
+      []
+      [[2, 2, 2], [2, 4]]
+
+  - slug: n-queens
+    title: N-Queens
+    time: O(n!)
+    space: O(n)
+    notes: |
+      Place one queen per row, so only columns and the two diagonals need checking.
+      Both diagonals have a constant along them — `row - col` and `row + col` — which
+      turns "is this square attacked?" into three Set lookups.
+    code: |
+      require "set"
+
+      def solve_queens(n)
+        solutions = []
+        columns = Set.new
+        rising = Set.new
+        falling = Set.new
+        placement = []
+
+        place = lambda do |row|
+          return solutions << placement.dup if row == n
+
+          (0...n).each do |col|
+            next if columns.include?(col) || rising.include?(row - col) || falling.include?(row + col)
+
+            columns << col
+            rising << row - col
+            falling << row + col
+            placement.push(col)
+
+            place.call(row + 1)
+
+            placement.pop
+            columns.delete(col)
+            rising.delete(row - col)
+            falling.delete(row + col)
+          end
+        end
+
+        place.call(0)
+        solutions
+      end
+
+      p solve_queens(4)
+      p [1, 2, 3, 4, 5, 6].map { |n| solve_queens(n).size }
+    expected: |
+      [[1, 3, 0, 2], [2, 0, 3, 1]]
+      [1, 0, 0, 2, 10, 4]

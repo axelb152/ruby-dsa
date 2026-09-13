@@ -69,3 +69,43 @@ snippets:
     expected: |
       [1, 1, 4, 2, 1, 1, 0, 0]
       [1, 1, 1, 0]
+
+  - slug: min-stack
+    title: Min stack
+    time: O(1) for every operation
+    space: O(n)
+    notes: |
+      Scanning for the minimum on demand is O(n); instead push the minimum *so far*
+      alongside each value. Because a pop restores the previous entry, the answer to
+      "what is the minimum now?" is always sitting on top.
+    code: |
+      class MinStack
+        def initialize = @entries = []
+
+        def push(value)
+          @entries.push([value, @entries.empty? ? value : [value, min].min])
+          self
+        end
+
+        def pop = @entries.pop&.first
+        def top = @entries.last&.first
+        def min = @entries.last&.last
+        def empty? = @entries.empty?
+      end
+
+      stack = MinStack.new
+      stack.push(5).push(2).push(7).push(1)
+
+      p [stack.top, stack.min]
+      p stack.pop
+      p [stack.top, stack.min]
+      p stack.pop
+      p [stack.top, stack.min]
+      p MinStack.new.min
+    expected: |
+      [1, 1]
+      1
+      [7, 2]
+      7
+      [2, 2]
+      nil

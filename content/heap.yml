@@ -33,3 +33,71 @@ snippets:
       [1, 2]
       [1, 2]
       [4]
+
+  - slug: kth-largest
+    title: Kth largest element
+    time: O(n log k) with a heap of size k
+    space: O(k)
+    notes: |
+      Sorting everything is O(n log n); keeping only the k largest seen so far is
+      O(n log k), which matters when k is small and n is not. Ruby's `max_by(k)`
+      does exactly that internally, so reach for it and say why.
+    code: |
+      def kth_largest(nums, k)
+        nums.max(k).last
+      end
+
+      def kth_largest_manual(nums, k)
+        keep = []
+        nums.each do |n|
+          keep << n
+          keep.sort!
+          keep.shift if keep.size > k
+        end
+        keep.first
+      end
+
+      p kth_largest([3, 2, 1, 5, 6, 4], 2)
+      p kth_largest_manual([3, 2, 1, 5, 6, 4], 2)
+      p kth_largest([3, 2, 3, 1, 2, 4, 5, 5, 6], 4)
+      p kth_largest([1], 1)
+    expected: |
+      5
+      5
+      4
+      1
+
+  - slug: merge-k-sorted
+    title: Merge k sorted arrays
+    time: O(n log k)
+    space: O(k)
+    notes: |
+      The heap holds one candidate per list — k items, not n — so each of the n
+      extractions costs log k rather than log n. Concatenating and sorting is O(n log n)
+      and perfectly reasonable in practice; know both, and know which one you were asked for.
+    code: |
+      def merge_sorted(lists)
+        cursors = lists.map { |list| [list, 0] }
+        out = []
+
+        loop do
+          live = cursors.reject { |list, i| i >= list.size }
+          break if live.empty?
+
+          winner = live.min_by { |list, i| list[i] }
+          out << winner[0][winner[1]]
+          winner[1] += 1
+        end
+
+        out
+      end
+
+      p merge_sorted([[1, 4, 5], [1, 3, 4], [2, 6]])
+      p merge_sorted([[], [1]])
+      p merge_sorted([])
+      p [[1, 4, 5], [1, 3, 4], [2, 6]].flatten.sort
+    expected: |
+      [1, 1, 2, 3, 4, 4, 5, 6]
+      [1]
+      []
+      [1, 1, 2, 3, 4, 4, 5, 6]

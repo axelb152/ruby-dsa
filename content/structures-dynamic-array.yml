@@ -1,0 +1,75 @@
+slug: dynamic-array
+part: structures
+position: 8
+title: Dynamic array
+blurb: |
+  What Ruby's Array is underneath: a fixed block of memory, plus a rule for what
+  to do when it fills up. Doubling the capacity is what makes push amortised O(1)
+  rather than O(n) — and that argument is the reason this gets asked.
+snippets:
+  - slug: dynamic-array
+    title: Growable array with capacity doubling
+    time: push amortised O(1) · index O(1)
+    space: O(n)
+    notes: |
+      Doubling means n pushes cost 1 + 2 + 4 + ... + n copies, which sums to under
+      2n — so the average push is constant even though individual pushes are O(n).
+      Growing by a fixed amount instead would make it O(n^2) overall.
+    code: |
+      class DynamicArray
+        include Enumerable
+
+        def initialize
+          @capacity = 1
+          @store = Array.new(@capacity)
+          @size = 0
+        end
+
+        attr_reader :size, :capacity
+
+        def [](index) = index.between?(0, @size - 1) ? @store[index] : nil
+
+        def push(value)
+          resize(@capacity * 2) if @size == @capacity
+          @store[@size] = value
+          @size += 1
+          self
+        end
+
+        def pop
+          return nil if @size.zero?
+          @size -= 1
+          value = @store[@size]
+          @store[@size] = nil
+          value
+        end
+
+        def each
+          return to_enum(:each) unless block_given?
+          @size.times { |i| yield @store[i] }
+        end
+
+        private
+
+        def resize(new_capacity)
+          bigger = Array.new(new_capacity)
+          @size.times { |i| bigger[i] = @store[i] }
+          @store = bigger
+          @capacity = new_capacity
+        end
+      end
+
+      array = DynamicArray.new
+      growth = (1..16).map { |n| array.push(n).capacity }
+
+      p growth.uniq
+      p [array.size, array.capacity]
+      p [array[0], array[15], array[16]]
+      p array.pop
+      p array.select(&:even?).first(4)
+    expected: |
+      [1, 2, 4, 8, 16]
+      [16, 16]
+      [1, 16, nil]
+      16
+      [2, 4, 6, 8]

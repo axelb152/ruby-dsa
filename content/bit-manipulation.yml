@@ -37,3 +37,51 @@ snippets:
       3
       "1011"
       3
+
+  - slug: counting-bits-dp
+    title: Counting bits for every number up to n
+    time: O(n)
+    space: O(n)
+    notes: |
+      `i >> 1` is i with its last bit dropped, so its popcount is already known —
+      add back the bit you dropped. That is a one-line DP recurrence, and beats
+      calling a per-number popcount for each of the n values.
+    code: |
+      def count_bits(n)
+        counts = Array.new(n + 1, 0)
+        (1..n).each { |i| counts[i] = counts[i >> 1] + (i & 1) }
+        counts
+      end
+
+      p count_bits(8)
+      p count_bits(0)
+      p (0..8).map { |n| n.to_s(2).count("1") }
+    expected: |
+      [0, 1, 1, 2, 1, 2, 2, 3, 1]
+      [0]
+      [0, 1, 1, 2, 1, 2, 2, 3, 1]
+
+  - slug: missing-number-and-powers
+    title: Missing number, and powers of two
+    time: O(n) and O(1)
+    space: O(1)
+    notes: |
+      XOR the indices against the values and every present number cancels, leaving
+      the absent one — no sorting, no extra Set. `n & (n - 1)` being zero means a
+      single bit is set, which is exactly what a power of two is.
+    code: |
+      def missing_number(nums)
+        (0..nums.size).reduce(:^) ^ nums.reduce(0, :^)
+      end
+
+      def power_of_two?(n) = n.positive? && (n & (n - 1)).zero?
+
+      p missing_number([3, 0, 1])
+      p missing_number([0])
+      p missing_number([9, 6, 4, 2, 3, 5, 7, 0, 1])
+      p [1, 2, 3, 16, 0, -8].map { |n| power_of_two?(n) }
+    expected: |
+      2
+      1
+      8
+      [true, true, false, true, false, false]

@@ -1,0 +1,95 @@
+slug: trie-class
+part: structures
+position: 11
+title: Trie (class-based)
+blurb: |
+  The same prefix tree as the pattern section, written as a proper object with
+  deletion. Deletion is the part people skip, and the part that is actually
+  fiddly: you must prune back up the branch without cutting off another word.
+snippets:
+  - slug: trie-class
+    title: Trie with insert, search and delete
+    time: O(len) per operation
+    space: O(total characters)
+    notes: |
+      Delete recurses down, unmarks the terminal, then prunes each node on the way
+      back up only if it has no children and is not itself the end of a shorter
+      word. Return whether the child is now prunable and the parent decides — that
+      is what keeps "app" alive when you delete "apple".
+    code: |
+      class Trie
+        Node = Struct.new(:children, :terminal) do
+          def self.empty = new({}, false)
+          def prunable? = children.empty? && !terminal
+        end
+
+        def initialize(words = [])
+          @root = Node.empty
+          words.each { |w| insert(w) }
+        end
+
+        def insert(word)
+          node = word.each_char.reduce(@root) { |n, c| n.children[c] ||= Node.empty }
+          node.terminal = true
+          self
+        end
+
+        def include?(word) = !!node_at(word)&.terminal
+
+        def prefix?(prefix) = !node_at(prefix).nil?
+
+        def words_with_prefix(prefix)
+          start = node_at(prefix)
+          return [] unless start
+          collect(start, prefix)
+        end
+
+        def delete(word)
+          prune(@root, word, 0)
+          self
+        end
+
+        private
+
+        def node_at(string)
+          string.each_char.reduce(@root) { |node, c| node && node.children[c] }
+        end
+
+        def collect(node, prefix, out = [])
+          out << prefix if node.terminal
+          node.children.each { |c, child| collect(child, prefix + c, out) }
+          out
+        end
+
+        # Returns true when the caller should drop this node from its children.
+        def prune(node, word, index)
+          if index == word.size
+            node.terminal = false
+          else
+            child = node.children[word[index]]
+            return false unless child
+            node.children.delete(word[index]) if prune(child, word, index + 1)
+          end
+          node.prunable?
+        end
+      end
+
+      trie = Trie.new(%w[app apple apply apt banana])
+
+      p trie.words_with_prefix("app")
+      p [trie.include?("app"), trie.include?("appl")]
+      p trie.prefix?("ban")
+
+      trie.delete("apple")
+      p trie.words_with_prefix("app")
+      p trie.include?("app")
+
+      trie.delete("banana")
+      p trie.prefix?("ban")
+    expected: |
+      ["app", "apple", "apply"]
+      [true, false]
+      true
+      ["app", "apply"]
+      true
+      false

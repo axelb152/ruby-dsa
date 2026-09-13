@@ -51,3 +51,72 @@ snippets:
       p group_anagrams(%w[eat tea tan ate nat bat])
     expected: |
       [["eat", "tea", "ate"], ["tan", "nat"], ["bat"]]
+
+  - slug: longest-consecutive-sequence
+    title: Longest consecutive sequence
+    time: O(n)
+    space: O(n)
+    notes: |
+      Sorting makes this trivial and O(n log n); the O(n) answer is a Set plus one
+      rule — only start counting from a number whose predecessor is absent. That
+      guarantees each run is walked exactly once, so the nested loop is still linear.
+    code: |
+      require "set"
+
+      def longest_consecutive(nums)
+        pool = nums.to_set
+        best = 0
+
+        pool.each do |n|
+          next if pool.include?(n - 1) # not the start of a run
+
+          length = 1
+          length += 1 while pool.include?(n + length)
+          best = [best, length].max
+        end
+
+        best
+      end
+
+      p longest_consecutive([100, 4, 200, 1, 3, 2])
+      p longest_consecutive([0, 3, 7, 2, 5, 8, 4, 6, 0, 1])
+      p longest_consecutive([])
+    expected: |
+      4
+      9
+      0
+
+  - slug: product-except-self
+    title: Product of array except self
+    time: O(n)
+    space: O(1) excluding output
+    notes: |
+      Division is the obvious answer and the forbidden one — it breaks on a zero.
+      Two sweeps instead: one accumulating the product of everything to the left,
+      one coming back for everything to the right.
+    code: |
+      def product_except_self(nums)
+        out = Array.new(nums.size, 1)
+
+        running = 1
+        nums.each_index do |i|
+          out[i] = running
+          running *= nums[i]
+        end
+
+        running = 1
+        nums.each_index.reverse_each do |i|
+          out[i] *= running
+          running *= nums[i]
+        end
+
+        out
+      end
+
+      p product_except_self([1, 2, 3, 4])
+      p product_except_self([-1, 1, 0, -3, 3])
+      p product_except_self([2, 3])
+    expected: |
+      [24, 12, 8, 6]
+      [0, 0, 9, 0, 0]
+      [3, 2]

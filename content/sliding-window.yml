@@ -38,3 +38,77 @@ snippets:
       1
       3
       0
+
+  - slug: fixed-window-max-sum
+    title: Maximum sum of a fixed-size window
+    time: O(n)
+    space: O(1)
+    notes: |
+      When the window size is fixed there is nothing to decide: add the entering
+      element, subtract the leaving one. Recomputing each window from scratch is the
+      O(n·k) mistake this exists to avoid.
+    code: |
+      def max_window_sum(nums, k)
+        return nil if k > nums.size || k <= 0
+
+        window = nums.first(k).sum
+        best = window
+
+        (k...nums.size).each do |i|
+          window += nums[i] - nums[i - k]
+          best = [best, window].max
+        end
+
+        best
+      end
+
+      p max_window_sum([2, 1, 5, 1, 3, 2], 3)
+      p max_window_sum([2, 3], 2)
+      p max_window_sum([1], 5)
+    expected: |
+      9
+      5
+      nil
+
+  - slug: minimum-window-substring
+    title: Minimum window substring
+    time: O(n + m)
+    space: O(alphabet)
+    notes: |
+      The two-counter trick: `missing` tracks how many required characters are still
+      outstanding, so checking whether the window is valid is an integer comparison
+      rather than a walk over the tally. Only shrink once the window is valid.
+    code: |
+      def min_window(s, target)
+        return "" if target.empty? || s.size < target.size
+
+        need = target.chars.tally
+        missing = target.size
+        best = nil
+        left = 0
+
+        s.each_char.with_index do |c, right|
+          missing -= 1 if need.key?(c) && need[c] > 0
+          need[c] = need.fetch(c, 0) - 1
+
+          next unless missing.zero?
+
+          # Pull the left edge in while the window stays valid.
+          while need[s[left]] < 0
+            need[s[left]] += 1
+            left += 1
+          end
+
+          best = [left, right] if best.nil? || (right - left) < (best[1] - best[0])
+        end
+
+        best ? s[best[0]..best[1]] : ""
+      end
+
+      p min_window("ADOBECODEBANC", "ABC")
+      p min_window("a", "aa")
+      p min_window("ab", "b")
+    expected: |
+      "BANC"
+      ""
+      "b"

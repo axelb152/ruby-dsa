@@ -85,3 +85,49 @@ snippets:
       p dijkstra(graph, "a")
     expected: |
       {"a" => 0, "b" => 1, "c" => 3, "d" => 6, "x" => Infinity}
+
+  - slug: kruskal-mst
+    title: Minimum spanning tree (Kruskal)
+    time: O(E log E)
+    space: O(V)
+    notes: |
+      Sort the edges, take each one unless it would close a cycle — and union-find
+      is what answers "would this close a cycle?" in near-constant time. This is the
+      clearest case for knowing that structure: without it the cycle check is a
+      traversal per edge.
+    code: |
+      class UnionFind
+        def initialize(nodes)
+          @parent = nodes.to_h { |n| [n, n] }
+        end
+
+        def find(x)
+          @parent[x] = find(@parent[x]) unless @parent[x] == x
+          @parent[x]
+        end
+
+        def union(a, b)
+          root_a, root_b = find(a), find(b)
+          return false if root_a == root_b
+          @parent[root_b] = root_a
+          true
+        end
+      end
+
+      def kruskal(nodes, edges)
+        uf = UnionFind.new(nodes)
+        chosen = edges.sort_by(&:last).select { |a, b, _weight| uf.union(a, b) }
+        [chosen, chosen.sum(&:last)]
+      end
+
+      nodes = %w[a b c d]
+      edges = [["a", "b", 1], ["b", "c", 2], ["a", "c", 4], ["c", "d", 3], ["a", "d", 10]]
+
+      chosen, total = kruskal(nodes, edges)
+      p chosen
+      p total
+      p chosen.size == nodes.size - 1
+    expected: |
+      [["a", "b", 1], ["b", "c", 2], ["c", "d", 3]]
+      6
+      true

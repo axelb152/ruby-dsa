@@ -1,0 +1,69 @@
+slug: graph-representations
+part: structures
+position: 12
+title: Graph representations
+blurb: |
+  Adjacency list, adjacency matrix, or edge list. The choice is a trade between
+  "list my neighbours" and "is there an edge between these two", and picking the
+  wrong one is how an O(V + E) traversal quietly becomes O(V^2).
+snippets:
+  - slug: representations
+    title: Adjacency list, matrix and edge list
+    time: see notes
+    space: O(V + E) list · O(V^2) matrix
+    notes: |
+      Adjacency list: neighbours in O(degree), edge lookup O(degree), space O(V + E).
+      Matrix: edge lookup O(1), but neighbours cost O(V) and space is O(V^2) even for
+      a sparse graph. Use a list by default; reach for a matrix when the graph is
+      dense or you are constantly asking whether a specific edge exists.
+    code: |
+      EDGES = [%w[a b], %w[a c], %w[b d], %w[c d], %w[d e]].freeze
+      NODES = EDGES.flatten.uniq.sort.freeze
+
+      def adjacency_list(edges)
+        edges.each_with_object(Hash.new { |h, k| h[k] = [] }) do |(from, to), list|
+          list[from] << to
+          list[to] << from
+        end
+      end
+
+      def adjacency_matrix(nodes, edges)
+        index = nodes.each_with_index.to_h
+        matrix = Array.new(nodes.size) { Array.new(nodes.size, 0) }
+        edges.each do |from, to|
+          matrix[index[from]][index[to]] = 1
+          matrix[index[to]][index[from]] = 1
+        end
+        matrix
+      end
+
+      list = adjacency_list(EDGES)
+      matrix = adjacency_matrix(NODES, EDGES)
+
+      p NODES
+      p list["d"].sort
+      p matrix
+
+      # Same traversal, either representation.
+      def bfs(start, neighbours)
+        seen = { start => true }
+        queue = [start]
+        order = []
+        until queue.empty?
+          node = queue.shift
+          order << node
+          neighbours.call(node).each do |nxt|
+            next if seen[nxt]
+            seen[nxt] = true
+            queue << nxt
+          end
+        end
+        order
+      end
+
+      p bfs("a", ->(n) { list[n].sort })
+    expected: |
+      ["a", "b", "c", "d", "e"]
+      ["b", "c", "e"]
+      [[0, 1, 1, 0, 0], [1, 0, 0, 1, 0], [1, 0, 0, 1, 0], [0, 1, 1, 0, 1], [0, 0, 0, 1, 0]]
+      ["a", "b", "c", "d", "e"]

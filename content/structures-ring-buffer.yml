@@ -1,0 +1,93 @@
+slug: ring-buffer-deque
+part: structures
+position: 10
+title: Ring-buffer deque
+blurb: |
+  A fixed array where the indices wrap. Constant time at both ends with no
+  allocation and no pointer chasing — which is why it backs bounded queues,
+  audio buffers and sliding windows over streams.
+snippets:
+  - slug: ring-buffer
+    title: Circular buffer with wrap-around indices
+    time: push/pop at either end O(1)
+    space: O(capacity)
+    notes: |
+      Modulo arithmetic does all the work: `(head - 1) % capacity` wraps to the end
+      of the array without a branch. Ruby's `%` always returns a non-negative result
+      for a positive divisor, so -1 % 5 is 4 — in C or Java that would be -1 and you
+      would need the extra `+ capacity`.
+    code: |
+      class RingBuffer
+        include Enumerable
+
+        def initialize(capacity)
+          @store = Array.new(capacity)
+          @capacity = capacity
+          @head = 0
+          @size = 0
+        end
+
+        attr_reader :size, :capacity
+
+        def full? = @size == @capacity
+        def empty? = @size.zero?
+
+        def push(value)
+          raise "buffer full" if full?
+          @store[(@head + @size) % @capacity] = value
+          @size += 1
+          self
+        end
+
+        def unshift(value)
+          raise "buffer full" if full?
+          @head = (@head - 1) % @capacity
+          @store[@head] = value
+          @size += 1
+          self
+        end
+
+        def shift
+          return nil if empty?
+          value = @store[@head]
+          @store[@head] = nil
+          @head = (@head + 1) % @capacity
+          @size -= 1
+          value
+        end
+
+        def pop
+          return nil if empty?
+          index = (@head + @size - 1) % @capacity
+          value = @store[index]
+          @store[index] = nil
+          @size -= 1
+          value
+        end
+
+        def each
+          return to_enum(:each) unless block_given?
+          @size.times { |i| yield @store[(@head + i) % @capacity] }
+        end
+      end
+
+      p(-1 % 5)
+
+      ring = RingBuffer.new(4)
+      ring.push(2).push(3)
+      ring.unshift(1)
+
+      p [ring.to_a, ring.size, ring.full?]
+      p [ring.shift, ring.pop]
+      p ring.to_a
+
+      ring.push(9).push(10).push(11)
+      p [ring.to_a, ring.full?]
+      p(begin; ring.push(12); rescue => e; e.message; end)
+    expected: |
+      4
+      [[1, 2, 3], 3, false]
+      [1, 3]
+      [2]
+      [[2, 9, 10, 11], true]
+      "buffer full"

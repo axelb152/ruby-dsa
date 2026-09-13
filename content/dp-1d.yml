@@ -37,3 +37,78 @@ snippets:
       4
       12
       0
+
+  - slug: coin-change
+    title: Coin change
+    time: O(amount · coins)
+    space: O(amount)
+    notes: |
+      Bottom-up over every amount from 1 up. This is unbounded knapsack: coins may
+      repeat, so the inner loop runs forwards. Greedily taking the largest coin is
+      the tempting wrong answer — with coins [1, 3, 4] and amount 6 it gives 3 coins
+      where 2 suffice.
+    code: |
+      def coin_change(coins, amount)
+        best = Array.new(amount + 1, Float::INFINITY)
+        best[0] = 0
+
+        (1..amount).each do |value|
+          coins.each do |coin|
+            next if coin > value
+            best[value] = [best[value], best[value - coin] + 1].min
+          end
+        end
+
+        best[amount].infinite? ? -1 : best[amount]
+      end
+
+      p coin_change([1, 3, 4], 6)
+      p coin_change([1, 2, 5], 11)
+      p coin_change([2], 3)
+      p coin_change([2], 0)
+    expected: |
+      2
+      3
+      -1
+      0
+
+  - slug: longest-increasing-subsequence
+    title: Longest increasing subsequence
+    time: O(n^2), or O(n log n) with the patience method
+    space: O(n)
+    notes: |
+      The O(n^2) version is the one to write first. The patience-sorting version
+      keeps the smallest possible tail for each length and binary-searches the
+      insert point — `bsearch_index` does that in one call, and the tails array's
+      *length* is the answer even though its contents are not the subsequence.
+    code: |
+      def lis_quadratic(nums)
+        return 0 if nums.empty?
+        best = Array.new(nums.size, 1)
+
+        nums.each_index do |i|
+          (0...i).each do |j|
+            best[i] = [best[i], best[j] + 1].max if nums[j] < nums[i]
+          end
+        end
+
+        best.max
+      end
+
+      def lis_patience(nums)
+        tails = []
+        nums.each do |n|
+          slot = tails.bsearch_index { |t| t >= n }
+          slot ? tails[slot] = n : tails << n
+        end
+        tails.size
+      end
+
+      nums = [10, 9, 2, 5, 3, 7, 101, 18]
+      p lis_quadratic(nums)
+      p lis_patience(nums)
+      p [lis_patience([]), lis_patience([7]), lis_patience([5, 4, 3])]
+    expected: |
+      4
+      4
+      [0, 1, 1]

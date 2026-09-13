@@ -34,3 +34,75 @@ snippets:
       6
       -1
       0
+
+  - slug: jump-game
+    title: Jump game
+    time: O(n)
+    space: O(1)
+    notes: |
+      Track the furthest index reachable so far. If the loop ever stands on an index
+      beyond that reach, no earlier choice could have helped — which is the argument
+      that makes the greedy pass correct rather than merely plausible.
+    code: |
+      def can_jump?(nums)
+        reach = 0
+        nums.each_with_index do |jump, i|
+          return false if i > reach
+          reach = [reach, i + jump].max
+        end
+        true
+      end
+
+      def min_jumps(nums)
+        jumps = current_end = furthest = 0
+        (0...nums.size - 1).each do |i|
+          furthest = [furthest, i + nums[i]].max
+          if i == current_end
+            jumps += 1
+            current_end = furthest
+          end
+        end
+        jumps
+      end
+
+      p can_jump?([2, 3, 1, 1, 4])
+      p can_jump?([3, 2, 1, 0, 4])
+      p min_jumps([2, 3, 1, 1, 4])
+      p min_jumps([1])
+    expected: |
+      true
+      false
+      2
+      0
+
+  - slug: gas-station
+    title: Gas station
+    time: O(n)
+    space: O(1)
+    notes: |
+      Two observations do it. If the total gas covers the total cost a solution
+      exists; and if you run dry between i and j, no station in that span can be the
+      start either — so restart at j + 1 rather than re-testing each candidate.
+    code: |
+      def start_station(gas, cost)
+        return -1 if gas.sum < cost.sum
+
+        start = tank = 0
+        gas.each_index do |i|
+          tank += gas[i] - cost[i]
+          if tank.negative?
+            start = i + 1
+            tank = 0
+          end
+        end
+
+        start
+      end
+
+      p start_station([1, 2, 3, 4, 5], [3, 4, 5, 1, 2])
+      p start_station([2, 3, 4], [3, 4, 3])
+      p start_station([5], [4])
+    expected: |
+      3
+      -1
+      0

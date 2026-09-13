@@ -1,0 +1,93 @@
+slug: doubly-linked-list
+part: structures
+position: 9
+title: Doubly linked list
+blurb: |
+  A back-pointer on every node. That buys O(1) removal of a node you already hold
+  — which is exactly what a singly linked list cannot do, and exactly what an LRU
+  cache needs.
+snippets:
+  - slug: doubly-linked-list
+    title: Doubly linked list with O(1) ends
+    time: push/unshift/pop/shift O(1) · remove a held node O(1)
+    space: O(n)
+    notes: |
+      Sentinel head and tail nodes remove every nil check: any real node always has
+      both neighbours, so insert and remove are unconditional pointer swaps. That
+      trick is worth more than the data structure itself.
+    code: |
+      class DoublyLinkedList
+        include Enumerable
+
+        Node = Struct.new(:value, :prev_node, :next_node)
+
+        def initialize(values = [])
+          @head = Node.new(:head, nil, nil)
+          @tail = Node.new(:tail, @head, nil)
+          @head.next_node = @tail
+          @size = 0
+          values.each { |v| push(v) }
+        end
+
+        attr_reader :size
+
+        def push(value) = insert_before(@tail, value)
+        def unshift(value) = insert_before(@head.next_node, value)
+
+        def pop = remove(@tail.prev_node)
+        def shift = remove(@head.next_node)
+
+        def insert_before(node, value)
+          fresh = Node.new(value, node.prev_node, node)
+          node.prev_node.next_node = fresh
+          node.prev_node = fresh
+          @size += 1
+          fresh
+        end
+
+        def remove(node)
+          return nil if node.equal?(@head) || node.equal?(@tail)
+          node.prev_node.next_node = node.next_node
+          node.next_node.prev_node = node.prev_node
+          @size -= 1
+          node.value
+        end
+
+        def each
+          return to_enum(:each) unless block_given?
+          node = @head.next_node
+          until node.equal?(@tail)
+            yield node.value
+            node = node.next_node
+          end
+        end
+
+        def reverse_to_a
+          [].tap do |out|
+            node = @tail.prev_node
+            until node.equal?(@head)
+              out << node.value
+              node = node.prev_node
+            end
+          end
+        end
+      end
+
+      list = DoublyLinkedList.new([2, 3, 4])
+      list.unshift(1)
+      held = list.push(5)
+
+      p list.to_a
+      p list.reverse_to_a
+
+      # The point of the back-pointer: removing a node you already hold costs O(1),
+      # with no traversal to find its predecessor.
+      p list.remove(held)
+      p [list.shift, list.pop, list.size]
+      p list.to_a
+    expected: |
+      [1, 2, 3, 4, 5]
+      [5, 4, 3, 2, 1]
+      5
+      [1, 4, 2]
+      [2, 3]

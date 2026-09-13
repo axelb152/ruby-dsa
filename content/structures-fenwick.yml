@@ -1,0 +1,69 @@
+slug: fenwick-tree
+part: structures
+position: 13
+title: Fenwick / segment tree
+blurb: |
+  Prefix sums that survive updates. A plain prefix-sum array answers range queries
+  in O(1) but costs O(n) to update; a Fenwick tree makes both O(log n), which is
+  the trade you want when the data keeps changing.
+snippets:
+  - slug: fenwick-tree
+    title: Fenwick tree (binary indexed tree)
+    time: update O(log n) · prefix sum O(log n)
+    space: O(n)
+    notes: |
+      `index & -index` isolates the lowest set bit, and that value is how many
+      elements the slot covers. Adding it walks up the update path, subtracting it
+      walks down the query path — which is the whole algorithm, in two loops of
+      three lines. One-based indexing is not optional: index 0 would loop forever.
+    code: |
+      class FenwickTree
+        def initialize(values = [])
+          @tree = Array.new(values.size + 1, 0)
+          @size = values.size
+          values.each_with_index { |v, i| add(i, v) }
+        end
+
+        # Add delta to the value at zero-based position i.
+        def add(i, delta)
+          index = i + 1
+          while index <= @size
+            @tree[index] += delta
+            index += index & -index
+          end
+          self
+        end
+
+        # Sum of the first i elements, zero-based exclusive: prefix_sum(3) is 0..2.
+        def prefix_sum(i)
+          index = i
+          total = 0
+          while index.positive?
+            total += @tree[index]
+            index -= index & -index
+          end
+          total
+        end
+
+        def range_sum(from, to) = prefix_sum(to + 1) - prefix_sum(from)
+      end
+
+      p [6 & -6, 8 & -8, 5 & -5]
+
+      values = [1, 2, 3, 4, 5, 6, 7, 8]
+      tree = FenwickTree.new(values)
+
+      p tree.prefix_sum(4)
+      p tree.range_sum(2, 5)
+      p values.sum
+
+      tree.add(2, 10)
+      p tree.range_sum(2, 5)
+      p tree.range_sum(0, 7)
+    expected: |
+      [2, 8, 1]
+      10
+      18
+      36
+      28
+      46
