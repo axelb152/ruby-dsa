@@ -54,7 +54,7 @@ gh api -X POST repos/axelb152/ruby-dsa/pages -f build_type=workflow
 ```
 
 The second call sets the Pages source to GitHub Actions, which is what lets
-`.github/workflows/deploy.yml` publish. After that, every push to `main` runs the
+`.github/workflows/deploy.yml` publish. After that, every push to `master` runs the
 snippet suite, builds `_site/`, and deploys only if the tests pass. Pull requests
 run the tests and the build but never touch the live site.
 
