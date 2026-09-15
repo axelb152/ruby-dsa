@@ -19,7 +19,7 @@ module SiteHelper
   # so the captured group is already safe by the time it is wrapped.
   def inline_code(text)
     ERB::Util.html_escape(text).gsub(/`([^`]+)`/) do
-      %(<code class="rounded bg-slate-200/70 px-1 dark:bg-slate-800">#{$1}</code>)
+      %(<code class="rounded bg-paper-2 px-1 text-ink dark:bg-night-3 dark:text-mist">#{$1}</code>)
     end.html_safe
   end
 end

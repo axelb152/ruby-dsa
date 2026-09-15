@@ -5,46 +5,110 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Inter, sans-serif;
   --font-mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, monospace;
+
+  /* One accent, and it is the language's own: ruby red. Everything else is a
+     warm neutral, so the accent has to earn every appearance. */
+  --color-ruby: oklch(0.56 0.21 22);
+  --color-ruby-bright: oklch(0.72 0.17 20);
+  --color-ruby-wash: oklch(0.96 0.02 22);
+
+  /* Light mode is paper, not screen-white. Warm stone rather than blue-grey slate,
+     which is what made the old theme read as washed out. */
+  --color-paper: oklch(0.975 0.004 80);
+  --color-paper-2: oklch(0.955 0.005 80);
+  --color-line: oklch(0.88 0.008 80);
+  --color-line-2: oklch(0.92 0.006 80);
+  --color-ink: oklch(0.24 0.012 60);
+  --color-ink-2: oklch(0.45 0.012 60);
+  --color-ink-3: oklch(0.62 0.01 60);
+
+  /* Dark mode keeps the near-black that already works, lifted a hair off pure
+     slate so it sits in the same warm family. */
+  --color-night: oklch(0.16 0.012 270);
+  --color-night-2: oklch(0.20 0.012 270);
+  --color-night-3: oklch(0.24 0.012 270);
+  --color-night-line: oklch(0.30 0.012 270);
+  --color-mist: oklch(0.90 0.008 80);
+  --color-mist-2: oklch(0.68 0.01 80);
+  --color-mist-3: oklch(0.52 0.01 80);
 }
 
-/* CodeMirror ships a light theme only. Rather than pull a second stylesheet per
-   mode, restyle its tokens against our own variables so one rule set serves both. */
+/* Browser surfaces carry the design too. */
+::selection { background: color-mix(in oklab, var(--color-ruby) 22%, transparent); }
+.dark ::selection { background: color-mix(in oklab, var(--color-ruby-bright) 30%, transparent); }
+
+:focus-visible {
+  outline: 2px solid var(--color-ruby);
+  outline-offset: 2px;
+  border-radius: 3px;
+}
+.dark :focus-visible { outline-color: var(--color-ruby-bright); }
+
+pre::-webkit-scrollbar { height: 6px; }
+pre::-webkit-scrollbar-thumb { background: var(--color-line); border-radius: 3px; }
+.dark pre::-webkit-scrollbar-thumb { background: var(--color-night-line); }
+
+details > summary { list-style: none; }
+details > summary::-webkit-details-marker { display: none; }
+details > summary .chevron { transition: transform 160ms cubic-bezier(0.2, 0, 0, 1); }
+details[open] > summary .chevron { transform: rotate(90deg); }
+
+/* Syntax colours. One rule set serves both the static <pre> preview (tokenised
+   with CodeMirror's Ruby mode into .cm-* spans) and the live editor, so a snippet
+   looks identical before and after you click into it. */
+.cm-keyword  { color: oklch(0.48 0.17 340); }
+.cm-atom     { color: oklch(0.50 0.13 300); }
+.cm-string   { color: oklch(0.50 0.12 150); }
+.cm-number   { color: oklch(0.55 0.14 60); }
+.cm-comment  { color: var(--color-ink-3); font-style: italic; }
+.cm-def      { color: oklch(0.45 0.13 250); font-weight: 500; }
+.cm-variable-2, .cm-variable-3, .cm-property { color: oklch(0.48 0.12 250); }
+.cm-tag      { color: var(--color-ruby); }
+.cm-operator { color: var(--color-ink-2); }
+.cm-builtin  { color: oklch(0.50 0.12 200); }
+
+.dark .cm-keyword  { color: oklch(0.78 0.13 340); }
+.dark .cm-atom     { color: oklch(0.78 0.11 300); }
+.dark .cm-string   { color: oklch(0.80 0.12 150); }
+.dark .cm-number   { color: oklch(0.82 0.13 70); }
+.dark .cm-comment  { color: var(--color-mist-3); }
+.dark .cm-def      { color: oklch(0.80 0.10 240); }
+.dark .cm-variable-2, .dark .cm-variable-3, .dark .cm-property { color: oklch(0.78 0.09 240); }
+.dark .cm-tag      { color: var(--color-ruby-bright); }
+.dark .cm-operator { color: var(--color-mist-2); }
+.dark .cm-builtin  { color: oklch(0.80 0.10 200); }
+
+/* CodeMirror ships a light theme only. Restyle it against our variables. */
 .CodeMirror {
   height: auto;
   font-family: var(--font-mono);
   font-size: 12.5px;
   line-height: 1.7;
   background: transparent;
-  color: var(--color-slate-700);
+  color: var(--color-ink);
 }
-.dark .CodeMirror { color: var(--color-slate-200); }
-.CodeMirror-gutters { background: transparent; border-right: 1px solid var(--color-slate-200); }
-.dark .CodeMirror-gutters { border-right-color: var(--color-slate-700); }
-.CodeMirror-linenumber { color: var(--color-slate-400); font-size: 11px; }
-.dark .CodeMirror-linenumber { color: var(--color-slate-600); }
-.CodeMirror-cursor { border-left-color: currentColor; }
-.CodeMirror-selected { background: var(--color-sky-100); }
-.dark .CodeMirror-selected { background: var(--color-slate-700); }
-
-.cm-keyword  { color: var(--color-violet-700); }
-.cm-string   { color: var(--color-emerald-700); }
-.cm-number   { color: var(--color-amber-700); }
-.cm-comment  { color: var(--color-slate-400); font-style: italic; }
-.cm-def, .cm-variable-2, .cm-property { color: var(--color-sky-700); }
-.cm-operator { color: var(--color-slate-500); }
-.dark .cm-keyword  { color: var(--color-violet-300); }
-.dark .cm-string   { color: var(--color-emerald-300); }
-.dark .cm-number   { color: var(--color-amber-300); }
-.dark .cm-comment  { color: var(--color-slate-500); }
-.dark .cm-def, .dark .cm-variable-2, .dark .cm-property { color: var(--color-sky-300); }
-.dark .cm-operator { color: var(--color-slate-400); }
+.dark .CodeMirror { color: var(--color-mist); }
+.CodeMirror-lines { padding: 10px 0; }
+.CodeMirror pre.CodeMirror-line, .CodeMirror pre.CodeMirror-line-like { padding-left: 10px; }
+.CodeMirror-gutters { background: transparent; border-right: 1px solid var(--color-line-2); }
+.dark .CodeMirror-gutters { border-right-color: var(--color-night-line); }
+.CodeMirror-linenumber { color: var(--color-ink-3); font-size: 11px; opacity: 0.7; }
+.dark .CodeMirror-linenumber { color: var(--color-mist-3); }
+.CodeMirror-cursor { border-left: 2px solid var(--color-ruby); }
+.dark .CodeMirror-cursor { border-left-color: var(--color-ruby-bright); }
+.CodeMirror-selected { background: color-mix(in oklab, var(--color-ruby) 14%, transparent); }
+.dark .CodeMirror-selected { background: color-mix(in oklab, var(--color-ruby-bright) 22%, transparent); }
+.CodeMirror-focused .CodeMirror-selected { background: color-mix(in oklab, var(--color-ruby) 20%, transparent); }
 
 /* Output pane states, driven by data-state from the snippet controller. */
-[data-state="running"] { border-color: var(--color-slate-300); }
-[data-state="good"] { border-color: var(--color-emerald-400); background: var(--color-emerald-50); }
-[data-state="warn"] { border-color: var(--color-amber-400); background: var(--color-amber-50); }
-[data-state="bad"]  { border-color: var(--color-red-400);     background: var(--color-red-50); }
-.dark [data-state="good"] { background: color-mix(in oklab, var(--color-emerald-950) 70%, transparent); }
-.dark [data-state="warn"] { background: color-mix(in oklab, var(--color-amber-950) 70%, transparent); }
-.dark [data-state="bad"]  { background: color-mix(in oklab, var(--color-red-950) 70%, transparent); }
+[data-state="running"] { border-color: var(--color-line); }
+[data-state="good"] { border-color: oklch(0.72 0.14 150); background: oklch(0.97 0.03 150); }
+[data-state="warn"] { border-color: oklch(0.78 0.14 75);  background: oklch(0.97 0.04 85); }
+[data-state="bad"]  { border-color: var(--color-ruby);    background: var(--color-ruby-wash); }
+.dark [data-state="good"] { border-color: oklch(0.55 0.12 150); background: oklch(0.24 0.04 150 / 0.6); }
+.dark [data-state="warn"] { border-color: oklch(0.65 0.12 75);  background: oklch(0.26 0.05 80 / 0.6); }
+.dark [data-state="bad"]  { border-color: var(--color-ruby-bright); background: oklch(0.26 0.06 22 / 0.6); }
+[data-state="running"] [data-body] { color: var(--color-ink-3); }
+.dark [data-state="running"] [data-body] { color: var(--color-mist-3); }
